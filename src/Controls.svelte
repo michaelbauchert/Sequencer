@@ -1,0 +1,95 @@
+<script>
+    import * as Tone from "tone";
+
+    let bpm = 120;
+    let stopped = true;    
+    export let loopDirection = 0; //0 = forward, 1 = backward, 3 = pingpong
+
+    $: if (!isNaN(bpm)) {
+        Tone.Transport.bpm.value =  bpm * 2;
+    } 
+
+    $: if (stopped) {
+        Tone.Transport.stop();
+    } else {
+        Tone.Transport.start();
+    }
+</script>
+
+<div>
+    <!--BPM Control-->
+    <label>
+        <span>BPM</span>
+        <input type="number" bind:value={bpm} />
+    </label>
+
+    <!--Pause/Play Button-->
+    <button on:click={() => stopped = !stopped}>
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+            {#if stopped}
+                <path d="M8 5v14l11-7z"/>
+            {:else}            
+                <path d="M6 6h12v12H6z"/>
+            {/if}
+        </svg>
+    </button>
+
+    <!--3-Way Loop Mode Toggle-->
+    <button on:click={() => loopDirection = (loopDirection + 1) % 3}>
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+            <g>
+                {#if loopDirection === 0} <!--Loop Forward-->   
+                    <path d="M22,8l-4-4v3H3v2h15v3L22,8z"/>
+                    <path d="m 22,16 -4,-4 v 3 H 3 v 2 h 15 v 3 z"/>
+                {:else if loopDirection === 1} <!--Loop Backward--> 
+                    <path d="m 2,8 4,4 V 9 H 21 V 7 H 6 V 4 Z"/>
+                    <path d="M2,16l4,4v-3h15v-2H6v-3L2,16z"/>
+                {:else if loopDirection === 2} <!--Loop Ping Pong-->            
+                    <path d="M22,8l-4-4v3H3v2h15v3L22,8z"/>
+                    <path d="M2,16l4,4v-3h15v-2H6v-3L2,16z"/>
+                {/if}
+            </g>
+        </svg>
+    </button>
+</div>
+
+<style>
+    div {
+		display: grid;
+		grid-template-columns: 50% minmax(0, 1fr) minmax(0, 1fr);
+	}
+	
+	label, button {
+		background: #f4f4f4;
+		border: 0px solid #ccc;
+		border-top-width: 1px; 
+	}
+	
+	button {
+        padding: 0;
+        margin: 0;
+		max-height: 60px;
+		border-radius: 0;
+	}
+	
+    svg {
+        height: 100%;
+        width: 100%;    
+    }
+
+	label {
+		padding: 10px;
+		display: flex;
+		align-items: last baseline;
+	}
+	
+	span {
+		font-size: 22px;
+		font-weight: 700;
+		margin-right: 8px;
+	}
+	
+	input {
+		min-width: calc(100% - 48px);
+	}
+</style>
