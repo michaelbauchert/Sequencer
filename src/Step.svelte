@@ -43,7 +43,7 @@
         justify-content: center;
         align-items: center;
         color: var(--dark);
-        font-size: x-large;
+        font-size: 2vw;
         line-height: 0;
 	}
 	

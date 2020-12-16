@@ -1,5 +1,8 @@
 <script>
 	import * as Tone from "tone";
+	import { fade } from 'svelte/transition';
+	import { createEventDispatcher } from 'svelte';
+	const dispatch = createEventDispatcher();
 	
 	import Step from './Step.svelte';
 	import SampleSelect from "./SampleSelect.svelte";
@@ -7,6 +10,7 @@
 	export let name = "Sequencer";
 	export let src;
 	export let loopDirection = 0; //0 = forward, 1 = backward, 3 = pingpong
+	export let hue = 0;
 	
 	let sequence = [{checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, 
 					{checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, 
@@ -72,26 +76,20 @@
 	
 </script>
 
-<section>
+<section style="filter: hue-rotate({hue}deg)">
 	<header>
-	<div style="--active-index: {activeIndex}">
+		<div>
 			<h1 bind:innerHTML={name}
 			contenteditable="true"></h1>
-			<SampleSelect bind:src={src} />			
-		</div>		
-		
-		<!--<div>
-			<button>
+
+			<!--Remove Sequencer Button-->
+			<button on:click={() => dispatch('remove')}>
 				<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-					<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+					<path xmlns="http://www.w3.org/2000/svg" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
 				</svg>
-			</button>
-			<button>
-				<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-					<path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-				</svg>
-			</button>			
-		</div>-->		
+			</button>		
+		</div>			
+		<SampleSelect bind:src={src} />				
 	</header>
 	
 
@@ -123,33 +121,32 @@
 
 <style>
 	section {
+		border: 5px solid var(--main);
+		box-sizing: border-box;
 		padding: 8px;
 		height: 100%;
-		min-width: 100%;
 		display: grid;
 		grid-template-rows: auto minmax(0, 1fr) auto;
 		scroll-snap-align: start;
 		color: var(--main);
 	}
 	
-	header {
+	header div {
 		display: flex;
 		justify-content: space-between;
-	}
-	
-	 header button {
-		height: calc(100% - 8px);
-		width: 50px
 	}
 	
 	h1 {
 		margin: 0;
 	}
-	
+
 	svg {
+		fill: var(--main);
+	}
+	
+	.plus-minus svg {
 		height: 100%;
 		width: 100%;
-		fill: var(--main);
 	}
 	
 	.container {
@@ -158,6 +155,7 @@
 	}
 	
 	.sequencer {		
+		min-width: 100%;
 		height: max-content;
 		grid-gap: 5px;
 		display: grid;
@@ -168,6 +166,11 @@
 		display: flex;
 		justify-content: space-around;
 	}
+
+	header div button {
+		border: 1px solid transparent;
+		border-radius: 0;
+	}
 	
 	.plus-minus button {
 		border-radius: 0;
@@ -177,15 +180,18 @@
 		height: 50px;
 	}
 
-	.plus-minus button:focus {
+	.plus-minus button:focus,
+	header div button:focus {
 		border: 1px solid var(--main);
 	}
 
-	.plus-minus button:active {
+	.plus-minus button:active, 
+	header div button:active {
 		background: var(--main);
 	}
 
-	.plus-minus button:active svg {
+	.plus-minus button:active svg, 
+	header div button:active svg {
 		fill: var(--dark);
 	}
 	
@@ -193,35 +199,44 @@
 		border: none;
 		background: none;
 		padding: 0;
+		margin: 0;
 	}
-
-	
 
 	@media only screen and (max-width: 600px) {
 		section {
-			min-width: 100%;
-		}	
+			width: 100%;
+		}
 	}
 
-	/* Medium devices (landscape tablets, 768px and up) */
+	/* Small devices (portrait tablets and large phones, 600px and up) */
+	@media only screen and (min-width: 600px) {
+		section {			
+			width: 50%;
+			height: 50%;
+		}
+	}
+
 	@media only screen and (min-width: 768px) {
 		section {
-			min-width: 50%;
-		}	
+			width: 33.33333%;
+		}
 	}
 
-	/* Large devices (laptops/desktops, 992px and up) */
 	@media only screen and (min-width: 992px) {
 		section {
-				min-width: 25%;
-			}		
+			width: 25%;
+		}
 	}
 
-	/* Extra large devices (large laptops and desktops, 1200px and up) */
 	@media only screen and (min-width: 1200px) {
 		section {
-				min-width: 20%;
-			}	
+			width: 20%;
+		}
 	}
-	
+
+	@media only screen and (min-width: 1600px) {
+		section {
+			width: calc(100% / 6);
+		}
+	}
 </style>

@@ -24,17 +24,6 @@
         <input type="number" bind:value={bpm} />
     </label>
 
-    <!--Pause/Play Button-->
-    <button on:click={() => stopped = !stopped} title="Play/Pause">
-        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-            {#if stopped}
-                <path d="M8 5v14l11-7z"/>
-            {:else}            
-                <path d="M6 6h12v12H6z"/>
-            {/if}
-        </svg>
-    </button>
-
     <!--3-Way Loop Mode Toggle-->
     <button on:click={() => loopDirection = (loopDirection + 1) % 3} title={"Loop " + loopStates[loopDirection]}>
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" class="loop">
@@ -52,12 +41,29 @@
             </g>
         </svg>
     </button>
+
+    <!--Pause/Play Button-->
+    <button on:click={() => stopped = !stopped} title="Play/Pause">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+            {#if stopped}
+                <path d="M8 5v14l11-7z"/>
+            {:else}            
+                <path d="M6 6h12v12H6z"/>
+            {/if}
+        </svg>
+    </button>
+
+    <button>
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+			<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+		</svg>
+    </button>    
 </div>
 
 <style>
     div {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+		grid-template-columns: repeat(4, minmax(0, 1fr));
 	}
 	
 	label, button {
@@ -78,11 +84,6 @@
         height: 100%;
         width: 100%;   
         fill: var(--dark); 
-    }
-
-    svg.loop {
-        width: 70%;
-        height: 70%;
     }
 
 	label {

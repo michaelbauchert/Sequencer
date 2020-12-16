@@ -4,13 +4,32 @@
 
 	let loopDirection = 0;
 
+	let sequencers = [{name: "Kick", src: "./samples/kick02.wav"},
+					  {name: "Snare", src: "./samples/snare02.wav"},
+					  {name: "Hi Hat", src: "./samples/hhclosed.wav"},{name: "Kick", src: "./samples/kick02.wav"},
+					  {name: "Snare", src: "./samples/snare02.wav"},
+					  {name: "Hi Hat", src: "./samples/hhclosed.wav"},{name: "Kick", src: "./samples/kick02.wav"},
+					  {name: "Snare", src: "./samples/snare02.wav"},
+					  {name: "Hi Hat", src: "./samples/hhclosed.wav"},{name: "Kick", src: "./samples/kick02.wav"},
+					  {name: "Snare", src: "./samples/snare02.wav"},
+					  {name: "Hi Hat", src: "./samples/hhclosed.wav"},];
+
+	function removeSequence(i) {
+		sequencers.splice(i, 1);
+		sequencers = sequencers;
+	}
+
 </script>
 
 <main>
 	<div class="parts">
-		<Sequencer name="Kick" src="./samples/kick02.wav" loopDirection={loopDirection}/>
-		<Sequencer name="Snare" src="./samples/snare02.wav" loopDirection={loopDirection}/>
-		<Sequencer name="Hi Hat" src="./samples/hhclosed.wav" loopDirection={loopDirection}/>
+		{#each sequencers as sequencer, i}
+			<Sequencer name={sequencer.name} 
+					   src={sequencer.src} 
+					   loopDirection={loopDirection} 
+					   hue={i / sequencers.length * 360}
+					   on:remove={() => removeSequence(i)}/>
+		{/each}
 	</div>
 	
 
@@ -22,12 +41,8 @@
 	:global(body, html) {
 		padding: 0;
 		overflow: hidden;
-
-		--dark: #181818;
-		--darker: #020202;
-		--brighter: #969696;
+		--dark: #020202;
 		--main: #f5d10d;
-
 		background: var(--dark);
 	}
 	
@@ -39,12 +54,16 @@
 	}	
 	
 	.parts {
-		padding: 8px;
-		width: calc(100% - 16px);
 		display: flex;
+		flex-direction: column;
+		flex-wrap: wrap;		
+		align-content: baseline;
+		max-width: 100%;
+		max-height: 100%;
 		overflow-x: auto;
 		overflow-y: hidden;
 		scroll-snap-type: x mandatory;
 		scroll-behavior: smooth;
 	}	
+	
 </style>
