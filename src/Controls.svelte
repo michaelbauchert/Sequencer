@@ -4,6 +4,7 @@
     let bpm = 120;
     let stopped = true;    
     export let loopDirection = 0; //0 = forward, 1 = backward, 3 = pingpong
+    const loopStates = ["Forward", "Backward", "Ping Pong"];
 
     $: if (!isNaN(bpm)) {
         Tone.Transport.bpm.value =  bpm * 2;
@@ -24,7 +25,7 @@
     </label>
 
     <!--Pause/Play Button-->
-    <button on:click={() => stopped = !stopped}>
+    <button on:click={() => stopped = !stopped} title="Play/Pause">
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
             {#if stopped}
                 <path d="M8 5v14l11-7z"/>
@@ -35,8 +36,8 @@
     </button>
 
     <!--3-Way Loop Mode Toggle-->
-    <button on:click={() => loopDirection = (loopDirection + 1) % 3}>
-        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+    <button on:click={() => loopDirection = (loopDirection + 1) % 3} title={"Loop " + loopStates[loopDirection]}>
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" class="loop">
             <g>
                 {#if loopDirection === 0} <!--Loop Forward-->   
                     <path d="M22,8l-4-4v3H3v2h15v3L22,8z"/>
@@ -56,12 +57,13 @@
 <style>
     div {
 		display: grid;
-		grid-template-columns: 50% minmax(0, 1fr) minmax(0, 1fr);
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
 	}
 	
 	label, button {
-		background: #f4f4f4;
-		border: 0px solid #ccc;
+		background: var(--main);
+		border: 1px solid var(--main);
+        color: var(--dark);
 		border-top-width: 1px; 
 	}
 	
@@ -74,22 +76,67 @@
 	
     svg {
         height: 100%;
-        width: 100%;    
+        width: 100%;   
+        fill: var(--dark); 
+    }
+
+    svg.loop {
+        width: 70%;
+        height: 70%;
     }
 
 	label {
 		padding: 10px;
 		display: flex;
-		align-items: last baseline;
+        justify-content: center;
+		align-items: center;
 	}
 	
-	span {
-		font-size: 22px;
+	span, input {
+		font-size: 15px;
 		font-weight: 700;
 		margin-right: 8px;
 	}
 	
 	input {
-		min-width: calc(100% - 48px);
+        padding: 0;
+        margin: 0;        
+        border: none !important;
+        background: var(--dark);
+        color: var(--main);
+		max-width: 6.3ch;
 	}
+
+    @media only screen and (max-width: 600px) {
+		input {
+			text-align: right;
+		}	
+	}
+
+	/* Medium devices (landscape tablets, 768px and up) */
+	@media only screen and (min-width: 768px) {
+		input {
+			text-align: center;
+		}	
+	}
+
+    button:focus, label:focus-within {
+        background: var(--dark);
+	}
+
+    button:focus path {
+        fill: var(--main);
+    }
+
+    label:focus-within {
+        color: var(--main);
+    }
+
+    input:focus {
+        color: var(--dark);
+    }
+
+    input:focus {
+        background: var(--main);
+    }
 </style>

@@ -20,8 +20,23 @@
 	}
 	
 	button {
-		border: none;
-		background: none;
+		border: 1px solid var(--main);
+		border-radius: 0;
+		background: transparent;
 		padding: 0;
+		padding-left: 4px;
+		padding-right: 4px;
+		
+		background: var(--main);
+		color: var(--dark);
+	}
+
+	button:hover, button:focus {
+		text-decoration: underline;
+	}
+
+	button:active {
+		background: transparent;
+		color: var(--main);
 	}
 </style>

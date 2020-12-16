@@ -1,19 +1,19 @@
 <script>
 	import * as Tone from "tone";
-
-	import { scale } from 'svelte/transition';
+	
+	import Step from './Step.svelte';
 	import SampleSelect from "./SampleSelect.svelte";
 	
 	export let name = "Sequencer";
 	export let src;
 	export let loopDirection = 0; //0 = forward, 1 = backward, 3 = pingpong
 	
-	let sequence = [false, false, false, false,
-					false, false, false, false,
-					false, false, false, false,
-					false, false, false, false,];	
+	let sequence = [{checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, 
+					{checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, 
+					{checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, 
+					{checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}];	
 
-	$: reverseSequence = sequence.reverse();
+	$: reverseSequence = sequence.slice().reverse();
 
 	$: pingPongSequence = [...sequence, 
 						   ...sequence.slice(1, sequence.length - 1).reverse()];
@@ -35,12 +35,12 @@
 	$: minusEnabled = (sequence.length != 0);
 	
 	function sequencePop() {
-		sequenceDeleted.push(sequence.pop());
+		sequenceDeleted.push(sequence.pop().checked);
 		sequence = sequence;
 	}
 	
 	function sequencePush() {
-		const newStep = (sequenceDeleted.length === 0) ? false : sequenceDeleted.pop();
+		const newStep = (sequenceDeleted.length === 0) ? ({checked: false, active: false}) : {checked: sequenceDeleted.pop(), active: false};
 		sequence = [...sequence, newStep];
 	}
 
@@ -50,24 +50,24 @@
 		}}).toDestination();
 	const sequencer = new Tone.Sequence(sequencerCallback, sequence).start(0);
 
-	let stepElements = [];
 	let activeIndex = 0;
 	function sequencerCallback(time, step) {
-		if(step) {
+		if(step.checked) {
 			sampler.triggerRelease("C4", time);
 			sampler.triggerAttack("C4", time);
 		}
-		stepElements[activeIndex].classList.remove("step");
+		
+		if(sequence[activeIndex])
+			sequence[activeIndex].active = false;
 		const sequencerProgress = Math.floor(sequencer.progress * currentSequence.length);
 		if(loopDirection ===  0){ //Loop Forward			
 			activeIndex = sequencerProgress;			
 		} else if(loopDirection ===  1){//Loop Backward
-			activeIndex = Math.abs(sequencerProgress - currentSequence.length - 1);
+			activeIndex = Math.abs(sequencerProgress - sequence.length + 1);
 		} else if(loopDirection === 2){//Loop Ping Pong
-			activeIndex = (sequencerProgress < sequence.length) ? sequencerProgress : sequence.length - 1 - (sequencerProgress % (sequence.length - 1));
-			
+			activeIndex = (sequencerProgress < sequence.length) ? sequencerProgress : sequence.length - 1 - (sequencerProgress % (sequence.length - 1));			
 		}
-		stepElements[activeIndex].classList.add("step");			
+		(sequence[activeIndex] ?? sequence[0]).active = true;	
 	}
 	
 </script>
@@ -97,12 +97,8 @@
 
 	<div class="container">
 		<div class="sequencer">
-			{#each sequence as step, i}
-				<label bind:this={stepElements[i]}
-					   transition:scale="{{duration: 150}}">
-					<input type="checkbox" bind:checked={step} />
-					<div></div>
-				</label>	
+			{#each sequence as step}
+				<Step bind:checked={step.checked} bind:active={step.active}/>
 			{/each}
 		</div>
 	</div>
@@ -110,13 +106,13 @@
 	
 	<div class="plus-minus">
 		{#if minusEnabled}
-			<button class="minus" on:click={sequencePop}>
+			<button class="minus" on:click={sequencePop} title={`Remove ${name} Step`}>
 				<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
 					<path d="M19 13H5v-2h14v2z"/>
 				</svg>
 			</button>
 		{/if}
-		<button class="plus" on:click={sequencePush}>
+		<button class="plus" on:click={sequencePush} title={`Add ${name} Step`}>
 			<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
 				<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
 			</svg>
@@ -133,6 +129,7 @@
 		display: grid;
 		grid-template-rows: auto minmax(0, 1fr) auto;
 		scroll-snap-align: start;
+		color: var(--main);
 	}
 	
 	header {
@@ -152,6 +149,7 @@
 	svg {
 		height: 100%;
 		width: 100%;
+		fill: var(--main);
 	}
 	
 	.container {
@@ -168,14 +166,27 @@
 	
 	.plus-minus {
 		display: flex;
-		justify-content: center;
+		justify-content: space-around;
 	}
 	
 	.plus-minus button {
+		border-radius: 0;
 		margin: 5px;
 		margin-left: 0;
 		width: 50px;
 		height: 50px;
+	}
+
+	.plus-minus button:focus {
+		border: 1px solid var(--main);
+	}
+
+	.plus-minus button:active {
+		background: var(--main);
+	}
+
+	.plus-minus button:active svg {
+		fill: var(--dark);
 	}
 	
 	button {
@@ -184,46 +195,7 @@
 		padding: 0;
 	}
 
-	label input {
-		position: absolute;
-		opacity: 0;
-		height: 0;
-		width: 0;
-	}
 	
-	label {
-		width: 100%;
-		height: 0;
-		padding-top: 100%;
-		position: relative;
-		
-	}
-	
-	label div {
-		mix-blend-mode: multiply;
-		background: lightgrey;
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		left: 0;
-	}
-	
-	input:checked + div {
-		background: grey;
-	}
-	
-	label:active div {
-		border: 1px solid black;
-	}
-	
-	label:hover div {
-		opacity: 0.5;
-	}
-
-	:global(.step) {
-		background: lightcoral;
-	}
 
 	@media only screen and (max-width: 600px) {
 		section {

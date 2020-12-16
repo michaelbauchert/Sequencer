@@ -4,7 +4,6 @@
 
 	let loopDirection = 0;
 
-
 </script>
 
 <main>
@@ -23,6 +22,13 @@
 	:global(body, html) {
 		padding: 0;
 		overflow: hidden;
+
+		--dark: #181818;
+		--darker: #020202;
+		--brighter: #969696;
+		--main: #f5d10d;
+
+		background: var(--dark);
 	}
 	
 	main {		
