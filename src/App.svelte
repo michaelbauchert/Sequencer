@@ -24,8 +24,7 @@
 					   hue={i / sequencers.length * 360}
 					   on:remove={() => removeSequence(i)}/>
 		{/each}
-	</div>
-	
+	</div>	
 
 	<Controls bind:loopDirection={loopDirection} />	
 </main>

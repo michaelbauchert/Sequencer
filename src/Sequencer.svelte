@@ -67,18 +67,20 @@
 		});
 	}
 
-	animator.onmessage = function(e) {
-		sequence[e.data[0]].indicator.style.background = 'var(--dark)';
-		(sequence[e.data[1]] ?? sequence[0]).indicator.style.background = 'var(--main)';
+	
+	animator.onmessage = function (e) {
+		const animatorData = e.data;
+		window.requestAnimationFrame(() => {
+			sequence[animatorData[0]].indicator.style.background = 'var(--dark)';
+			(sequence[animatorData[1]] ?? sequence[0]).indicator.style.background = 'var(--main)';
+		});	
 	}
 
 	//stop playing samples when transport stops
-	Transport.on("start", () => animate = true);
 	Transport.on("stop", stopAll);
 
 	function stopAll() {
 		sampler.triggerRelease("C4");
-		animate = false;
 	}
 	
 </script>
