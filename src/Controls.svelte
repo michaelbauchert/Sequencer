@@ -59,17 +59,23 @@
         </svg>
     </button>
 
-    <button>
+    <!--<button>
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
 			<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
 		</svg>
-    </button>    
+    </button>
+    
+    <button>
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+        </svg>
+    </button>-->
 </div>
 
 <style>
     div {
 		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
+		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 	
 	label, button {
@@ -107,24 +113,12 @@
 	
 	input {
         padding: 0;
-        margin: 0;        
+        margin: 0;      
+        text-align: center;  
         border: none !important;
         background: var(--dark);
         color: var(--main);
 		max-width: 6.3ch;
-	}
-
-    @media only screen and (max-width: 600px) {
-		input {
-			text-align: right;
-		}	
-	}
-
-	/* Medium devices (landscape tablets, 768px and up) */
-	@media only screen and (min-width: 768px) {
-		input {
-			text-align: center;
-		}	
 	}
 
     button:focus, label:focus-within {

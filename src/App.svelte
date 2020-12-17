@@ -6,12 +6,15 @@
 
 	let sequencers = ["./samples/kick02.wav", 
 					  "./samples/snare02.wav",
+					  "./samples/rimshot.wav",
 					  "./samples/clap.wav",
 					  "./samples/hhclosed.wav",
+					  "./samples/maracas.wav",
 					  "./samples/cowbell.wav",
 					  "./samples/cymbal.wav",
 					  "./samples/clave.wav",
 					  "./samples/tomhi.wav",
+					  "./samples/tommid.wav",
 					  "./samples/tomlo.wav"];
 
 	function removeSequence(i) {
