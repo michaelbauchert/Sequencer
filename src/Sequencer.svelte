@@ -52,31 +52,52 @@
 	const sampler = new Sampler().toDestination();
 	const sequencer = new Sequence(sequencerCallback, sequence).start(0);
 
-	let activeIndex = 0;
 	function sequencerCallback(time, step) {
 		if(step.checked) {
 			sampler.triggerRelease("C4", time);
 			sampler.triggerAttack("C4", time);
-		}
-
-		window.requestAnimationFrame(sequencerStep);			
+		}		
 	}
 
-	function sequencerStep() {
-		sequence[activeIndex].indicator.style.background = 'var(--dark)';
-		const sequencerProgress = Math.floor(sequencer.progress * currentSequence.length);
+	let activeIndex = 0;
+	const animator = new Worker('./build/animateWorker.js');
+	let animate = false;
+	$:if (animate) {
+		window.requestAnimationFrame(sequencerStep);
+	}
+	function sequencerStep() {		
+		animator.postMessage({
+			progress: sequencer.progress,
+			currentLength: currentSequence.length,
+			sequenceLength: sequence.length,
+			loopDirection: loopDirection
+		});
+		/*const sequencerProgress = Math.floor(sequencer.progress * currentSequence.length);
 		if(loopDirection ===  0){ //Loop Forward			
 			activeIndex = sequencerProgress;			
 		} else if(loopDirection ===  1){//Loop Backward
 			activeIndex = Math.abs(sequencerProgress - sequence.length + 1);
 		} else if(loopDirection === 2){//Loop Ping Pong
 			activeIndex = (sequencerProgress < sequence.length) ? sequencerProgress : sequence.length - 1 - (sequencerProgress % (sequence.length - 1));			
-		}
-		(sequence[activeIndex] ?? sequence[0]).indicator.style.background = 'var(--main)';
+		}*/		
+
+		if(animate)
+			window.requestAnimationFrame(sequencerStep)
+	}
+
+	animator.onmessage = function(e) {
+		sequence[e.data[0]].indicator.style.background = 'var(--dark)';
+		(sequence[e.data[1]] ?? sequence[0]).indicator.style.background = 'var(--main)';
 	}
 
 	//stop playing samples when transport stops
-	Transport.on("stop", () => sampler.triggerRelease("C4"));
+	Transport.on("start", () => animate = true);
+	Transport.on("stop", stopAll);
+
+	function stopAll() {
+		sampler.triggerRelease("C4");
+		animate = false;
+	}
 	
 </script>
 
