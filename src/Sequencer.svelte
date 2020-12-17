@@ -52,37 +52,19 @@
 	const sampler = new Sampler().toDestination();
 	const sequencer = new Sequence(sequencerCallback, sequence).start(0);
 
+	const animator = new Worker('./animateWorker.js');
 	function sequencerCallback(time, step) {
 		if(step.checked) {
 			sampler.triggerRelease("C4", time);
 			sampler.triggerAttack("C4", time);
-		}		
-	}
-
-	let activeIndex = 0;
-	const animator = new Worker('./animateWorker.js');
-	let animate = false;
-	$:if (animate) {
-		window.requestAnimationFrame(sequencerStep);
-	}
-	function sequencerStep() {		
+		}	
+		
 		animator.postMessage({
 			progress: sequencer.progress,
 			currentLength: currentSequence.length,
 			sequenceLength: sequence.length,
 			loopDirection: loopDirection
 		});
-		/*const sequencerProgress = Math.floor(sequencer.progress * currentSequence.length);
-		if(loopDirection ===  0){ //Loop Forward			
-			activeIndex = sequencerProgress;			
-		} else if(loopDirection ===  1){//Loop Backward
-			activeIndex = Math.abs(sequencerProgress - sequence.length + 1);
-		} else if(loopDirection === 2){//Loop Ping Pong
-			activeIndex = (sequencerProgress < sequence.length) ? sequencerProgress : sequence.length - 1 - (sequencerProgress % (sequence.length - 1));			
-		}*/		
-
-		if(animate)
-			window.requestAnimationFrame(sequencerStep)
 	}
 
 	animator.onmessage = function(e) {
