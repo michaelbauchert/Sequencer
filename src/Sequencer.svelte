@@ -13,10 +13,10 @@
 	export let hue = 0;
 	let drag = false;
 	
-	let sequence = [{checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, 
-					{checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, 
-					{checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, 
-					{checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}];	
+	let sequence = [{checked: false, indicator : ''}, {checked: false, indicator : ''}, {checked: false, indicator : ''}, {checked: false, indicator : ''}, 
+					{checked: false, indicator : ''}, {checked: false, indicator : ''}, {checked: false, indicator : ''}, {checked: false, indicator : ''}, 
+					{checked: false, indicator : ''}, {checked: false, indicator : ''}, {checked: false, indicator : ''}, {checked: false, indicator : ''}, 
+					{checked: false, indicator : ''}, {checked: false, indicator : ''}, {checked: false, indicator : ''}, {checked: false, indicator : ''}];	
 
 	$: reverseSequence = sequence.slice().reverse();
 
@@ -45,7 +45,7 @@
 	}
 	
 	function sequencePush() {
-		const newStep = (sequenceDeleted.length === 0) ? ({checked: false, active: false}) : {checked: sequenceDeleted.pop(), active: false};
+		const newStep = (sequenceDeleted.length === 0) ? ({checked: false, indicator : ''}) : {checked: sequenceDeleted.pop()};
 		sequence = [...sequence, newStep];
 	}
 
@@ -58,9 +58,12 @@
 			sampler.triggerRelease("C4", time);
 			sampler.triggerAttack("C4", time);
 		}
-		
-		if(sequence[activeIndex])
-			sequence[activeIndex].active = false;
+
+		window.requestAnimationFrame(sequencerStep);			
+	}
+
+	function sequencerStep() {
+		sequence[activeIndex].indicator.style.background = 'var(--dark)';
 		const sequencerProgress = Math.floor(sequencer.progress * currentSequence.length);
 		if(loopDirection ===  0){ //Loop Forward			
 			activeIndex = sequencerProgress;			
@@ -69,7 +72,7 @@
 		} else if(loopDirection === 2){//Loop Ping Pong
 			activeIndex = (sequencerProgress < sequence.length) ? sequencerProgress : sequence.length - 1 - (sequencerProgress % (sequence.length - 1));			
 		}
-		(sequence[activeIndex] ?? sequence[0]).active = true;	
+		(sequence[activeIndex] ?? sequence[0]).indicator.style.background = 'var(--main)';
 	}
 
 	//stop playing samples when transport stops
@@ -95,7 +98,7 @@
 	<div class="container">
 		<div class="sequencer">
 			{#each sequence as step}
-				<Step bind:checked={step.checked} bind:active={step.active}/>
+				<Step bind:checked={step.checked} bind:indicator={step.indicator}/>
 			{/each}
 		</div>
 	</div>

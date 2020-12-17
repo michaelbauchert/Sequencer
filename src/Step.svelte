@@ -1,13 +1,15 @@
 <script>
     import { scale } from 'svelte/transition';
 
-    export let active = false;
+    export let indicator;
     export let checked = false;
 </script>
 
 <label transition:scale="{{duration: 150}}">
     <input type="checkbox" bind:checked={checked} />
-    <div class:active></div>
+	<div>
+		<div bind:this={indicator}></div>
+	</div>
 </label>
 
 <style>
@@ -25,7 +27,7 @@
 		position: relative;
 	}
 	
-	label div {
+	label > div {
 		position: absolute;        
 		width: 100%;
 		height: 100%;
@@ -45,8 +47,7 @@
         line-height: 0;
 	}
 
-	div::after {
-		content: "";
+	div div {
 		width: 40%;
 		height: 0;
 		padding-top: 40%;
@@ -58,11 +59,7 @@
         background-color: var(--main);
 	}
 	
-	label:hover div::after, input:focus + div::after {
+	label:hover div, input:focus + div {
 		border-color: var(--main);
-	}
-
-	div.active::after{          
-		background: var(--main);
 	}
 </style>
