@@ -4,15 +4,15 @@
 
 	let loopDirection = 0;
 
-	let sequencers = [{name: "Kick", src: "./samples/kick02.wav"},
-					  {name: "Snare", src: "./samples/snare02.wav"},
-					  {name: "Hi Hat", src: "./samples/hhclosed.wav"},{name: "Kick", src: "./samples/kick02.wav"},
-					  {name: "Snare", src: "./samples/snare02.wav"},
-					  {name: "Hi Hat", src: "./samples/hhclosed.wav"},{name: "Kick", src: "./samples/kick02.wav"},
-					  {name: "Snare", src: "./samples/snare02.wav"},
-					  {name: "Hi Hat", src: "./samples/hhclosed.wav"},{name: "Kick", src: "./samples/kick02.wav"},
-					  {name: "Snare", src: "./samples/snare02.wav"},
-					  {name: "Hi Hat", src: "./samples/hhclosed.wav"},];
+	let sequencers = ["./samples/kick02.wav", 
+					  "./samples/snare02.wav",
+					  "./samples/clap.wav",
+					  "./samples/hhclosed.wav",
+					  "./samples/cowbell.wav",
+					  "./samples/cymbal.wav",
+					  "./samples/clave.wav",
+					  "./samples/tomhi.wav",
+					  "./samples/tomlo.wav"];
 
 	function removeSequence(i) {
 		sequencers.splice(i, 1);
@@ -24,8 +24,8 @@
 <main>
 	<div class="parts">
 		{#each sequencers as sequencer, i}
-			<Sequencer name={sequencer.name} 
-					   src={sequencer.src} 
+			<Sequencer name={i + 1} 
+					   src={sequencer} 
 					   loopDirection={loopDirection} 
 					   hue={i / sequencers.length * 360}
 					   on:remove={() => removeSequence(i)}/>

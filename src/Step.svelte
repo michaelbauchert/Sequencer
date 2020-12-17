@@ -7,9 +7,7 @@
 
 <label transition:scale="{{duration: 150}}">
     <input type="checkbox" bind:checked={checked} />
-    <div class:active>
-        ■
-    </div>
+    <div class:active></div>
 </label>
 
 <style>
@@ -46,26 +44,25 @@
         font-size: 2vw;
         line-height: 0;
 	}
+
+	div::after {
+		content: "";
+		width: 40%;
+		height: 0;
+		padding-top: 40%;
+		border: 1px solid transparent;
+		background: var(--dark);
+	}
 	
 	input:checked + div {
-        border-color: var(--main);
         background-color: var(--main);
 	}
 	
-	label:active div {
-		border-color: transparent;
-	}
-	
-	label:hover div, input:focus + div {
-		border: 6px solid var(--main);
+	label:hover div::after, input:focus + div::after {
+		border-color: var(--main);
 	}
 
-	div.active{    
-        border-color: var(--main);        
-		color: var(--main);
-	}
-
-    input:checked + div.active {  
-        background-color: var(--main);        	
+	div.active::after{          
+		background: var(--main);
 	}
 </style>

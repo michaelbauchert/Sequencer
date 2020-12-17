@@ -15,6 +15,11 @@
     } else {
         Tone.Transport.start();
     }
+
+    async function startContext() {
+        await Tone.start();
+        console.log("context started");
+    }
 </script>
 
 <div>
@@ -43,7 +48,8 @@
     </button>
 
     <!--Pause/Play Button-->
-    <button on:click={() => stopped = !stopped} title="Play/Pause">
+    <button on:click|once={startContext}
+            on:click={() => stopped = !stopped} title="Play/Pause">
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
             {#if stopped}
                 <path d="M8 5v14l11-7z"/>

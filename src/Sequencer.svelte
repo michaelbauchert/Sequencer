@@ -1,5 +1,5 @@
 <script>
-	import * as Tone from "tone";
+	import { Sampler, Sequence, Transport } from "tone";
 	import { fade } from 'svelte/transition';
 	import { createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
@@ -11,6 +11,7 @@
 	export let src;
 	export let loopDirection = 0; //0 = forward, 1 = backward, 3 = pingpong
 	export let hue = 0;
+	let drag = false;
 	
 	let sequence = [{checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, 
 					{checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, {checked: false, active: false}, 
@@ -48,11 +49,8 @@
 		sequence = [...sequence, newStep];
 	}
 
-	const sampler = new Tone.Sampler({
-		urls: {
-			C4: src
-		}}).toDestination();
-	const sequencer = new Tone.Sequence(sequencerCallback, sequence).start(0);
+	const sampler = new Sampler().toDestination();
+	const sequencer = new Sequence(sequencerCallback, sequence).start(0);
 
 	let activeIndex = 0;
 	function sequencerCallback(time, step) {
@@ -73,25 +71,26 @@
 		}
 		(sequence[activeIndex] ?? sequence[0]).active = true;	
 	}
+
+	//stop playing samples when transport stops
+	Transport.on("stop", () => sampler.triggerRelease("C4"));
 	
 </script>
 
-<section style="filter: hue-rotate({hue}deg)">
+<section style="filter: hue-rotate({hue}deg)" 
+		 on:dragenter|preventDefault|stopPropagation={() => drag = true}>
 	<header>
-		<div>
-			<h1 bind:innerHTML={name}
-			contenteditable="true"></h1>
+		<h1>{name}</h1>
 
-			<!--Remove Sequencer Button-->
-			<button on:click={() => dispatch('remove')}>
-				<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-					<path xmlns="http://www.w3.org/2000/svg" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-				</svg>
-			</button>		
-		</div>			
-		<SampleSelect bind:src={src} />				
+		<!--Remove Sequencer Button-->
+		<button on:click={() => dispatch('remove')}>
+			<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+				<path xmlns="http://www.w3.org/2000/svg" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+			</svg>
+		</button>					
 	</header>
-	
+
+	<SampleSelect bind:src={src} bind:drag={drag} sampler={sampler}/>		
 
 	<div class="container">
 		<div class="sequencer">
@@ -126,12 +125,12 @@
 		padding: 8px;
 		height: 100%;
 		display: grid;
-		grid-template-rows: auto minmax(0, 1fr) auto;
+		grid-template-rows: auto auto minmax(0, 1fr) auto;
 		scroll-snap-align: start;
 		color: var(--main);
 	}
 	
-	header div {
+	header {
 		display: flex;
 		justify-content: space-between;
 	}
