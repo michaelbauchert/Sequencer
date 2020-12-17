@@ -60,7 +60,7 @@
 	}
 
 	let activeIndex = 0;
-	const animator = new Worker('./build/animateWorker.js');
+	const animator = new Worker('./animateWorker.js');
 	let animate = false;
 	$:if (animate) {
 		window.requestAnimationFrame(sequencerStep);
