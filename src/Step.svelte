@@ -45,14 +45,17 @@
         color: var(--dark);
         font-size: 2vw;
         line-height: 0;
+		overflow: hidden;
 	}
 
 	div div {
-		width: 40%;
-		height: 0;
-		padding-top: 40%;
-		border: 1px solid transparent;
-		background: var(--dark);
+		box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+		height: 100%;
+		width: 100%;
+		border: 10px solid var(--dark);
+		background: transparent;
 	}
 	
 	input:checked + div {

@@ -17,6 +17,7 @@
     "svelte": "^3.0.0"
   },
   "dependencies": {
+    "offscreen-canvas": "^0.1.1",
     "sirv-cli": "^1.0.0",
     "svelte-loading-spinners": "^0.1.2",
     "tone": "^14.7.58"

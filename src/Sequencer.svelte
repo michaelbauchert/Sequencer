@@ -6,7 +6,8 @@
 	
 	import Step from './Step.svelte';
 	import SampleSelect from "./SampleSelect.svelte";
-	
+	import Animation from "./Animation.svelte";
+		
 	export let name = "Sequencer";
 	export let src;
 	export let loopDirection = 0; //0 = forward, 1 = backward, 3 = pingpong
@@ -52,36 +53,15 @@
 	const sampler = new Sampler().toDestination();
 	const sequencer = new Sequence(sequencerCallback, sequence).start(0);
 
-	const animator = new Worker('./animateWorker.js');
 	function sequencerCallback(time, step) {
 		if(step.checked) {
 			sampler.triggerRelease("C4", time);
 			sampler.triggerAttack("C4", time);
-		}	
-		
-		animator.postMessage({
-			progress: sequencer.progress,
-			currentLength: currentSequence.length,
-			sequenceLength: sequence.length,
-			loopDirection: loopDirection
-		});
-	}
-
-	
-	animator.onmessage = function (e) {
-		const animatorData = e.data;
-		window.requestAnimationFrame(() => {
-			sequence[animatorData[0]].indicator.style.background = 'var(--dark)';
-			(sequence[animatorData[1]] ?? sequence[0]).indicator.style.background = 'var(--main)';
-		});	
+		}		
 	}
 
 	//stop playing samples when transport stops
-	Transport.on("stop", stopAll);
-
-	function stopAll() {
-		sampler.triggerRelease("C4");
-	}
+	Transport.on("stop", () => sampler.triggerRelease("C4"));
 	
 </script>
 
@@ -105,6 +85,10 @@
 			{#each sequence as step}
 				<Step bind:checked={step.checked} bind:indicator={step.indicator}/>
 			{/each}
+			<Animation sequencer={sequencer} 
+					   sequenceLength={sequence.length}
+					   currentLength={currentSequence.length}
+					   loopDirection={loopDirection} />
 		</div>
 	</div>
 	
@@ -162,6 +146,7 @@
 	}
 	
 	.sequencer {		
+		position: relative;
 		min-width: 100%;
 		height: max-content;
 		grid-gap: 5px;
