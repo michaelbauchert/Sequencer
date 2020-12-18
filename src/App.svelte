@@ -1,14 +1,16 @@
 <script>
 	import Sequencer from "./Sequencer.svelte";
 	import Controls from "./Controls.svelte";	
+import Animation from "./Animation.svelte";
 
 	let loopDirection = 0;
 
 	let sequencers = ["./samples/kick02.wav", 
 					  "./samples/snare02.wav",
-					  "./samples/hhclosed.wav",];
+					  "./samples/hhclosed.wav"];
 
 	function removeSequence(i) {
+		console.log(i)
 		sequencers.splice(i, 1);
 		sequencers = sequencers;
 	}
@@ -19,14 +21,15 @@
 	<div class="parts">
 		{#each sequencers as sequencer, i}
 			<Sequencer name={i + 1} 
-					   src={sequencer} 
+					   bind:src={sequencer} 
 					   loopDirection={loopDirection} 
 					   hue={i / sequencers.length * 360}
 					   on:remove={() => removeSequence(i)}/>
 		{/each}
 	</div>	
 
-	<Controls bind:loopDirection={loopDirection} />	
+	<Controls bind:loopDirection={loopDirection}
+			  on:create={() => sequencers = [...sequencers, ""]} />	
 </main>
 
 
@@ -57,6 +60,13 @@
 		overflow-y: hidden;
 		scroll-snap-type: x mandatory;
 		scroll-behavior: smooth;
+	}
+
+	@media only screen and (min-width: 992px) {
+		main {
+			grid-template-columns: minmax(0, 1fr) 60px;
+			grid-template-rows: minmax(0, 1fr);
+		}
 	}	
 	
 </style>

@@ -1,8 +1,16 @@
 <script>
     import * as Tone from "tone";
+    import Knob from "dumptruck";
+    import Dialog from "./Dialog.svelte";
+    import AppInfo from "./AppInfo.svelte";
+    import { createEventDispatcher, onMount } from 'svelte';
+	const dispatch = createEventDispatcher();
 
     let bpm = 120;
-    let stopped = true;    
+    let dialogBPM; //, appBarBPM;
+    let stopped = true;  
+    let appInfoOpen = false;
+    let bpmOpen = false; 
     export let loopDirection = 0; //0 = forward, 1 = backward, 3 = pingpong
     const loopStates = ["Forward", "Backward", "Ping Pong"];
 
@@ -20,17 +28,39 @@
         await Tone.start();
         console.log("context started");
     }
+
+    onMount(() =>{
+        dialogBPM.$on("input", (e) => bpm = e.detail.value);
+        //appBarBPM.$on("input", (e) => bpm = e.detail.value);
+    })
+
+    
 </script>
 
+<Dialog bind:open={appInfoOpen}>
+    <AppInfo />
+</Dialog>
+
+<Dialog bind:open={bpmOpen}>
+    <dt-knob shortname="" 
+             min="20" 
+             max="999" 
+             value={bpm}
+             unit="BPM"
+             bind:this={dialogBPM}></dt-knob>
+</Dialog>
+
+
 <div>
-    <!--BPM Control-->
-    <label>
-        <span>BPM</span>
-        <input type="number" bind:value={bpm} />
-    </label>
+    <button on:click={() => appInfoOpen = true}>
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+            <path xmlns="http://www.w3.org/2000/svg" d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+        </svg>
+        <span>App Info</span>
+    </button>
 
     <!--3-Way Loop Mode Toggle-->
-    <button on:click={() => loopDirection = (loopDirection + 1) % 3} title={"Loop " + loopStates[loopDirection]}>
+    <button on:click={() => loopDirection = (loopDirection + 1) % 3}>
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" class="loop">
             <g>
                 {#if loopDirection === 0} <!--Loop Forward-->   
@@ -45,11 +75,12 @@
                 {/if}
             </g>
         </svg>
+        <span>{"Loop " + loopStates[loopDirection]}</span>
     </button>
 
     <!--Pause/Play Button-->
     <button on:click|once={startContext}
-            on:click={() => stopped = !stopped} title="Play/Pause">
+            on:click={() => stopped = !stopped}>
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
             {#if stopped}
                 <path d="M8 5v14l11-7z"/>
@@ -57,25 +88,35 @@
                 <path d="M6 6h12v12H6z"/>
             {/if}
         </svg>
+        <span>{stopped ? 'Play' : 'Stop'}</span>
+    </button> 
+
+    <button class="bpm-button"
+            on:click={() => bpmOpen = true}>
+        <strong>{bpm}</strong>
+        <span>Beats Per Minute</span>
     </button>
 
-    <!--<button>
+    <!--<dt-knob class="bpm-knob"            
+             shortname="" 
+             min="20" 
+             max="999" 
+             value={bpm}
+             unit="BPM"
+             bind:this={appBarBPM}></dt-knob>    -->  
+
+    <button on:click={() => dispatch('create')}>
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
 			<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-		</svg>
-    </button>
-    
-    <button>
-        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
         </svg>
-    </button>-->
+        <span>Add Sequence</span>
+    </button>
 </div>
 
 <style>
     div {
 		display: grid;
-		grid-template-columns: repeat(3, minmax(0, 1fr));
+		grid-template-columns: repeat(5, minmax(0, 1fr));              
 	}
 	
 	label, button {
@@ -86,11 +127,25 @@
 	}
 	
 	button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         padding: 0;
         margin: 0;
 		max-height: 60px;
 		border-radius: 0;
 	}
+
+    button span {
+        font-size: 10px;         
+        padding-bottom: 3px;
+        font-weight: 600;
+    }
+
+    button strong {
+        font-weight: 600;
+        font-size: 30px;
+    }
 	
     svg {
         height: 100%;
@@ -105,7 +160,7 @@
 		align-items: center;
 	}
 	
-	span, input {
+	label span, input {
 		font-size: 15px;
 		font-weight: 700;
 		margin-right: 8px;
@@ -129,7 +184,9 @@
         fill: var(--main);
     }
 
-    label:focus-within {
+    label:focus-within, 
+    button:focus span, 
+    button:focus strong {
         color: var(--main);
     }
 
@@ -140,4 +197,44 @@
     input:focus {
         background: var(--main);
     }
+
+    dt-knob {
+        height: 25%;
+        --value-font-size: 30px;
+        --font-color: var(--main);
+    }
+
+    dt-knob.bpm-knob {
+        display: none;
+        width: 100%;
+        height: 100%;
+    }
+
+    @media only screen and (min-width: 992px) {
+		div {
+			grid-template-columns: minmax(0, 1fr);
+			grid-template-rows: repeat(5, minmax(0, 1fr));
+		}
+
+        button {
+            max-height: 100%;
+            justify-content: center;
+        }
+
+        svg {
+            height: auto;
+        }
+
+        /*.bpm-knob {
+            display: initial;
+        }
+
+        .bpm-button {
+            display: none;
+        }*/
+	}
+
+    
+
+    
 </style>

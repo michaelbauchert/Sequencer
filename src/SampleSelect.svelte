@@ -1,6 +1,9 @@
 <script>
 	import { fade, fly } from 'svelte/transition';
-	export let src;
+	import { onMount, createEventDispatcher } from 'svelte';
+	const dispatch = createEventDispatcher();
+
+	export let src = false;
 	export let drag = false;
 	export let sampler;
 	let unloaded = true;
@@ -9,16 +12,16 @@
 
 	let fileInput;
 	
-	function updateAudioSample(file) {
-		unloaded = true;
-		src = file.name;	
-		sampler.add("C4", blob.createObjectURL(file), sampleLoaded);				
+	function updateAudioSample(e) {
+		const files = e.target.files;
+		if (files) {
+			unloaded = true;
+			src = files[0].name;	
+			sampler.add("C4", blob.createObjectURL(files[0]), sampleLoaded);
+		}								
 	}
-
-	sampler.add("C4", src, sampleLoaded);
-	src = src.slice(src.lastIndexOf('/') + 1, src.length);
 	
-	function sampleLoaded() {
+	function sampleLoaded() {		
 		unloaded = false;
 	}
 
@@ -26,14 +29,24 @@
 		updateAudioSample(e.dataTransfer.files[0]);
 		drag = false;
 	}
+
+	onMount(() => {
+		if(src) {
+			sampler.add("C4", src, sampleLoaded);
+			src = src.slice(src.lastIndexOf('/') + 1, src.length);
+		} else {
+			fileInput.click();
+		}
+	});
 </script>
 
 <button on:click={() => fileInput.click()} 
-		class:unloaded>{src}</button>
+		class:unloaded 
+		style="display: { (src = false) ? 'none' : 'initial' }">{src}</button>
 <input type="file"  
 	   accept="audio/*" 
 	   bind:this={fileInput} 
-	   on:change={(e) => updateAudioSample(e.target.files[0])}/>
+	   on:change={updateAudioSample} />
 
 
 	<div class="file-drop"

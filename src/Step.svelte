@@ -1,15 +1,13 @@
 <script>
     import { scale } from 'svelte/transition';
 
-    export let indicator;
-    export let checked = false;
+	export let checked = false;
+	export let disabled = false;
 </script>
 
 <label transition:scale="{{duration: 150}}">
-    <input type="checkbox" bind:checked={checked} />
-	<div>
-		<div bind:this={indicator}></div>
-	</div>
+    <input type="checkbox" bind:checked={checked}/>
+	<div></div>
 </label>
 
 <style>
@@ -43,26 +41,36 @@
         justify-content: center;
         align-items: center;
         color: var(--dark);
-        font-size: 2vw;
-        line-height: 0;
 		overflow: hidden;
 	}
 
-	div div {
+	div::after {
+		content: "";
 		box-sizing: border-box;
         -moz-box-sizing: border-box;
         -webkit-box-sizing: border-box;
 		height: 100%;
 		width: 100%;
-		border: 10px solid var(--dark);
+		border: 7px solid var(--dark);
 		background: transparent;
+	}	
+
+	input:checked + div::after {
+		height: 100%;
+		width: 100%;
+        border-color: var(--main);
 	}
 	
-	input:checked + div {
-        background-color: var(--main);
+	label:hover div::after, input:focus + div::after{
+		height: 50%;
+		width: 50%;
+		border: 1px solid var(--main);
 	}
 	
-	label:hover div, input:focus + div {
-		border-color: var(--main);
+	label:focus-within input:checked + div::after {
+		height: 100%;
+		width: 100%;
+		background: var(--main);
+		border: 7px solid var(--dark);
 	}
 </style>

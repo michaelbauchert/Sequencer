@@ -9,18 +9,14 @@
 	import Animation from "./Animation.svelte";
 		
 	export let name = "Sequencer";
-	export let src;
+	export let src = false;
 	export let loopDirection = 0; //0 = forward, 1 = backward, 3 = pingpong
 	export let hue = 0;
 	let drag = false;
 	
-	let sequence = [{checked: false, indicator : ''}, {checked: false, indicator : ''}, {checked: false, indicator : ''}, {checked: false, indicator : ''}, 
-					{checked: false, indicator : ''}, {checked: false, indicator : ''}, {checked: false, indicator : ''}, {checked: false, indicator : ''}, 
-					{checked: false, indicator : ''}, {checked: false, indicator : ''}, {checked: false, indicator : ''}, {checked: false, indicator : ''}, 
-					{checked: false, indicator : ''}, {checked: false, indicator : ''}, {checked: false, indicator : ''}, {checked: false, indicator : ''}];	
-
+	let sequence = [false, false, false, false, false, false, false, false,
+					false, false, false, false,false, false, false, false];	
 	$: reverseSequence = sequence.slice().reverse();
-
 	$: pingPongSequence = [...sequence, 
 						   ...sequence.slice(1, sequence.length - 1).reverse()];
 	
@@ -41,12 +37,12 @@
 	$: minusEnabled = (sequence.length != 0);
 	
 	function sequencePop() {
-		sequenceDeleted.push(sequence.pop().checked);
+		sequenceDeleted.push(sequence.pop());
 		sequence = sequence;
 	}
 	
 	function sequencePush() {
-		const newStep = (sequenceDeleted.length === 0) ? ({checked: false, indicator : ''}) : {checked: sequenceDeleted.pop()};
+		const newStep = (sequenceDeleted.length === 0) ? false : sequenceDeleted.pop();
 		sequence = [...sequence, newStep];
 	}
 
@@ -54,60 +50,63 @@
 	const sequencer = new Sequence(sequencerCallback, sequence).start(0);
 
 	function sequencerCallback(time, step) {
-		if(step.checked) {
+		if(step) {
 			sampler.triggerRelease("C4", time);
 			sampler.triggerAttack("C4", time);
 		}		
 	}
 
 	//stop playing samples when transport stops
-	Transport.on("stop", () => sampler.triggerRelease("C4"));
-	
+	Transport.on("stop", () => sampler.triggerRelease("C4"));	
 </script>
 
 <section style="filter: hue-rotate({hue}deg)" 
-		 on:dragenter|preventDefault|stopPropagation={() => drag = true}>
+		on:dragenter|preventDefault|stopPropagation={() => drag = true}>
 	<header>
 		<h1>{name}</h1>
 
 		<!--Remove Sequencer Button-->
-		<!--<button on:click={() => dispatch('remove')}>
+		<button on:click={() => dispatch('remove')}>
 			<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
 				<path xmlns="http://www.w3.org/2000/svg" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
 			</svg>
-		</button>-->					
+		</button>				
 	</header>
 
-	<SampleSelect bind:src={src} bind:drag={drag} sampler={sampler}/>		
+	<SampleSelect bind:src={src} 
+				  bind:drag={drag}
+				  sampler={sampler}
+				  on:fail={() => dispatch('remove')}/>		
 
-	<div class="container">
-		<div class="sequencer">
-			{#each sequence as step}
-				<Step bind:checked={step.checked} bind:indicator={step.indicator}/>
-			{/each}
-			<Animation sequencer={sequencer} 
-					   sequenceLength={sequence.length}
-					   currentLength={currentSequence.length}
-					   loopDirection={loopDirection} />
+	{#if src}
+		<div class="container">
+			<div class="sequencer">
+				{#each sequence as step}
+					<Step bind:checked={step}/>
+				{/each}
+				<Animation sequencer={sequencer} 
+						sequenceLength={sequence.length}
+						currentLength={currentSequence.length}
+						loopDirection={loopDirection} />
+			</div>
 		</div>
-	</div>
-	
-	
-	<div class="plus-minus">
-		{#if minusEnabled}
-			<button class="minus" on:click={sequencePop} title={`Remove ${name} Step`}>
+		
+		
+		<div class="plus-minus">
+			{#if minusEnabled}
+				<button class="minus" on:click={sequencePop} title={`Remove ${name} Step`}>
+					<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+						<path d="M19 13H5v-2h14v2z"/>
+					</svg>
+				</button>
+			{/if}
+			<button class="plus" on:click={sequencePush} title={`Add ${name} Step`}>
 				<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-					<path d="M19 13H5v-2h14v2z"/>
+					<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
 				</svg>
 			</button>
-		{/if}
-		<button class="plus" on:click={sequencePush} title={`Add ${name} Step`}>
-			<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-				<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-			</svg>
-		</button>
-	</div>
-	
+		</div>
+	{/if}	
 </section>
 
 <style>
