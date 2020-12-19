@@ -240,13 +240,13 @@
 		--grid-gap: 0.3rem;
 
 		--knob-diameter: calc(100% - var(--grid-gap) * 2);
-		--knob-fill: #585858;
-		--knob-fill-focus: #010101;
+		--knob-fill: var(--main);
+		--knob-fill-focus: var(--main);
 		--knob-border: none;
 
-		--indicator-width: 6%;
-		--indicator-height: 33%;
-		--indicator-fill: white;
+		--indicator-width: 8%;
+		--indicator-height: 40%;
+		--indicator-fill: var(--dark);
 		--indicator-border: none;
 		--indicator-border-radius: 0;
 		--indicator-margin-top: -1px;
