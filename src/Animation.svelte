@@ -4,7 +4,7 @@
 
     export let sequencer, currentLength, sequenceLength, loopDirection;
     let canvas, ctx, animate;
-    $: rows = Math.ceil(currentLength / 8);
+    $: rows = Math.ceil(sequenceLength / 8);
 
     const animator = new Worker('./animateWorker.js');      
 

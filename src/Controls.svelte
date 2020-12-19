@@ -14,10 +14,6 @@
     export let loopDirection = 0; //0 = forward, 1 = backward, 3 = pingpong
     const loopStates = ["Forward", "Backward", "Ping Pong"];
 
-    const context = new Tone.Context({ latencyHint: "balanced" });
-    // set this context as the global Context
-    Tone.setContext(context);
-
     $: if (!isNaN(bpm)) {
         Tone.Transport.bpm.value =  bpm * 2;
     } 
