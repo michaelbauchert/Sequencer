@@ -14,6 +14,8 @@
     export let loopDirection = 0; //0 = forward, 1 = backward, 3 = pingpong
     const loopStates = ["Forward", "Backward", "Ping Pong"];
 
+    Tone.context.latencyHint = "playback";
+
     $: if (!isNaN(bpm)) {
         Tone.Transport.bpm.value =  bpm * 2;
     } 
@@ -39,9 +41,7 @@
 		if (files.length != 0) {
             dispatch('create', {file: files[0]});
 		}	        
-    }
-
-    
+    }    
 </script>
 
 <Dialog bind:open={appInfoOpen}>

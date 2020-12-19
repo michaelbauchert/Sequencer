@@ -1,7 +1,6 @@
 <script>
 	import Sequencer from "./Sequencer.svelte";
 	import Controls from "./Controls.svelte";	
-import Animation from "./Animation.svelte";
 
 	let loopDirection = 0;
 
