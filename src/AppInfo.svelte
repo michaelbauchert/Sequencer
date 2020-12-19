@@ -34,6 +34,7 @@
 
 <style>
     div {
+        color: white;
         width: max-content;
     }
     
@@ -41,7 +42,11 @@
         border-spacing: 10px 25px;
     }
 
-    th {
+    th, strong {
+        color: var(--main)
+    }
+
+    th {        
         vertical-align: top;
         text-align: left;
         max-width: 20ch;
