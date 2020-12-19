@@ -29,7 +29,7 @@ import Animation from "./Animation.svelte";
 	</div>	
 
 	<Controls bind:loopDirection={loopDirection}
-			  on:create={() => sequencers = [...sequencers, ""]} />	
+			  on:create={(e) => sequencers = [...sequencers, e.detail.file]} />	
 </main>
 
 

@@ -78,35 +78,34 @@
 				  sampler={sampler}
 				  on:fail={() => dispatch('remove')}/>		
 
-	{#if src}
-		<div class="container">
-			<div class="sequencer">
-				{#each sequence as step}
-					<Step bind:checked={step}/>
-				{/each}
-				<Animation sequencer={sequencer} 
-						sequenceLength={sequence.length}
-						currentLength={currentSequence.length}
-						loopDirection={loopDirection} />
-			</div>
+
+	<div class="container">
+		<div class="sequencer">
+			{#each sequence as step}
+				<Step bind:checked={step}/>
+			{/each}
+			<Animation sequencer={sequencer} 
+					sequenceLength={sequence.length}
+					currentLength={currentSequence.length}
+					loopDirection={loopDirection} />
 		</div>
-		
-		
-		<div class="plus-minus">
-			{#if minusEnabled}
-				<button class="minus" on:click={sequencePop} title={`Remove ${name} Step`}>
-					<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-						<path d="M19 13H5v-2h14v2z"/>
-					</svg>
-				</button>
-			{/if}
-			<button class="plus" on:click={sequencePush} title={`Add ${name} Step`}>
+	</div>
+	
+	
+	<div class="plus-minus">
+		{#if minusEnabled}
+			<button class="minus" on:click={sequencePop} title={`Remove ${name} Step`}>
 				<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-					<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+					<path d="M19 13H5v-2h14v2z"/>
 				</svg>
 			</button>
-		</div>
-	{/if}	
+		{/if}
+		<button class="plus" on:click={sequencePush} title={`Add ${name} Step`}>
+			<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+				<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+			</svg>
+		</button>
+	</div>	
 </section>
 
 <style>

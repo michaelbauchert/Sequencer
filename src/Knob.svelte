@@ -1,27 +1,28 @@
 <script>
 	export let shortname = 'Parameter';
-	export let longname = '';
-
-	
+	export let longname = '';	
 
 	export let min = 0;
 	$: if((typeof min) == "string") {
 		min = parseFloat(min);
+		mid = getMid();
 	}
 
 	export let max = 100;
 	$: if((typeof max) == "string") {
 		max = parseFloat(max);
+		mid = getMid();
 	}
 
 	export let step = 1;
 	$: if((typeof step) == "string") {
 		step = parseFloat(step);
+		mid = getMid();
 	}
 
 	export let unit = "%";
 
-	export let mid = Math.round((max - min) / 2 / step) * step + min;	
+	export let mid = getMid(); 
 	$: if((typeof mid) == "string") {
 		mid = parseFloat(mid);
 		value = mid;		
@@ -31,7 +32,7 @@
 	}
 	$:exponent = Math.log10((mid - min) / (max - min))/Math.log10(0.5);	
 
-	export let defaultvalue = mid;
+	export let defaultvalue;
 	$: if((typeof defaultvalue) == "string") {
 		defaultvalue = parseFloat(defaultvalue);
 		value = defaultvalue;
@@ -59,7 +60,10 @@
 
 	//variables to reference knob and numberInput elements
 	let knob;
-	let numberInput;
+
+	function getMid() {
+		return Math.round((max - min) / 2 / step) * step + min;	
+	}
 
 	function setInRangeAndRoundToStep(value) {
 		return Math.round(Math.max(Math.min(max, value), min) / step) * step;
@@ -96,9 +100,9 @@
 	function handleDrag(e) {
 		const dragAmount = e.movementY;
 		if(e.shiftKey) {
-			knobDelta -= dragAmount/height;
+			knobDelta -= dragAmount/(height * 2);
 		} else {
-			knobDelta -= dragAmount/(height / 3);
+			knobDelta -= dragAmount/height;
 		}//end check shift key
 
 		const newNormal = normalvalue + knobDelta;
@@ -180,56 +184,56 @@
 
 
 <div class="knob">
+	<div class="knob-label">{shortname}</div>
 
+	<div class="knob-wrapper"
+				style="--knob-rotation:{normalvalue * 300 - 150}deg;
+							--normal:{normalvalue};
+							--normal-rotation:{Math.abs(normalvalue * 2 - 1)};"
+				
+				bind:this={knob}
+				tabindex="0"
+				draggable="false"
+
+				role="slider"
+				aria-label={longname ?? shortname}
+				aria-valuemin={min}
+				aria-valuemax={max}
+				aria-valuenow={value}
+				aria-valuetext={value + " " + unit}
+
+				on:pointerdown={beginKnobTurn}
+				on:pointerup={endKnobTurn}
+				on:dblclick={setToDefault}
+				on:keydown={handleKeyDown}>
+		<slot>
+			<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+				<g>
+					<circle cx="50" cy="50" r="50"/>
+					<rect style="width: var(--indicator-width); 
+						height:var(--indicator-height); 
+						x: calc(50% - var(--indicator-width) / 2);"/>
+				</g>					
+			</svg>
+		</slot>
+	</div>
+
+	<div class="knob-number-input">
+		<span on:click={handleClick}
+				role="presentation"
+				class:unfocused>{value.toFixed(decimalPlaces) + " " + unit}</span>
+
+		<input type="number"
+						bind:this={numInput}
+						min={min}
+						max={max}
+						tabindex="-1"
+						on:keyup={submitInput}
+						class:unfocused
+						on:blur={handleBlur}>
+	</div>
 </div>
-<div class="knob-label">{shortname}</div>
 
-<div class="knob-wrapper"
-			style="--knob-rotation:{normalvalue * 300 - 150}deg;
-						--normal:{normalvalue};
-						--normal-rotation:{Math.abs(normalvalue * 2 - 1)};"
-			
-			bind:this={knob}
-			tabindex="0"
-			draggable="false"
-
-			role="slider"
-			aria-label={longname ?? shortname}
-			aria-valuemin={min}
-			aria-valuemax={max}
-			aria-valuenow={value}
-			aria-valuetext={value + " " + unit}
-
-			on:pointerdown={beginKnobTurn}
-			on:pointerup={endKnobTurn}
-			on:dblclick={setToDefault}
-			on:keydown={handleKeyDown}>
-	<slot>
-		<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-			<g>
-				<circle cx="50" cy="50" r="50"/>
-				<rect style="width: var(--indicator-width); 
-					height:var(--indicator-height); 
-					x: calc(50% - var(--indicator-width) / 2);"/>
-			</g>					
-		</svg>
-	</slot>
-</div>
-
-<div class="knob-number-input">
-	<span on:click={handleClick}
-			role="presentation"
-			class:unfocused>{value.toFixed(decimalPlaces) + " " + unit}</span>
-
-	<input type="number"
-					bind:this={numInput}
-					min={min}
-					max={max}
-					tabindex="-1"
-					on:keyup={submitInput}
-					class:unfocused
-					on:blur={handleBlur}>
-</div>
 
 <style>
 	.knob {
@@ -247,14 +251,15 @@
 		--indicator-border-radius: 0;
 		--indicator-margin-top: -1px;
 
-		--label-font-size: 12px;
-		--value-font-size: 8px;
-
-		width: 100%;
-		height: 100%;
+		--label-font-size: 0px;
+		--value-font-size: 30px;
+		--font-color: var(--main);
+		
+		width: 40vmin;
+		height: 40vmin;
 		display: inline-grid;
 		grid-gap: var(--grid-gap);
-		grid-template-rows: min-content minmax(0, 1fr) min-content;
+		grid-template-rows: min-content minmax(0, 1fr) var(--value-font-size);
 		grid-template-areas: 
 		'label'
 		'knob'
@@ -267,7 +272,7 @@
 		justify-self:center;
 	}
 
-	.knob .text-right {
+	.knob.text-right {
 		grid-template-areas: 
 		'knob label'
 		'knob number';
@@ -277,35 +282,35 @@
 		text-align: center;
 	}
 
-	.knob .text-right .knob-number-input,
-	.knob .text-right .knob-label,
-	.knob .text-left .knob-number-input,
-	.knob .text-left .knob-label{
+	.knob.text-right .knob-number-input,
+	.knob.text-right .knob-label,
+	.knob.text-left .knob-number-input,
+	.knob.text-left .knob-label{
 		justify-self: start;
 	}
 
-	.knob .text-right .knob-number-input,
-	.knob .text-left .knob-number-input{
+	.knob.text-right .knob-number-input,
+	.knob.text-left .knob-number-input{
 		align-self: start;
 	}
 
-	.knob .text-right input,
+	.knob.text-right input,
 	.knob .text-left input{
 		text-align: left;
 	}
 
-	.knob .text-right .knob-label,
-	.knob .text-left .knob-label{
+	.knob.text-right .knob-label,
+	.knob.text-left .knob-label{
 		align-self: end;
 	}
 
-	.knob .text-left {
+	.knob.text-left {
 		grid-template-areas: 
 		'label knob'
 		'number knob';
 	}
 
-	.knob .text-top {
+	.knob.text-top {
 		justify-content: center;
 		grid-template-areas: 
 		'label'
@@ -313,7 +318,7 @@
 		'knob';
 	}
 
-	.knob .text-bottom {
+	.knob.text-bottom {
 		grid-template-areas: 
 		'knob'
 		'label'
@@ -388,6 +393,7 @@
 	}
 
 	input {
+		font-size: var(--value-font-size);
 		background: transparent;
 		outline: 0;
 		border: 0;
@@ -410,5 +416,9 @@
 		display: none;
 		margin: 0;
 		width: 100%;
+	}
+
+	input, span {
+		color: var(--font-color);
 	}
 </style>

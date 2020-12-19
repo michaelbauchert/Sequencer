@@ -1,6 +1,7 @@
 <script>
 	import { fade, fly } from 'svelte/transition';
 	import { onMount, createEventDispatcher } from 'svelte';
+import { create_ssr_component } from 'svelte/internal';
 	const dispatch = createEventDispatcher();
 
 	export let src = false;
@@ -31,11 +32,13 @@
 	}
 
 	onMount(() => {
-		if(src) {
+		if((typeof src) === "string") {
 			sampler.add("C4", src, sampleLoaded);
 			src = src.slice(src.lastIndexOf('/') + 1, src.length);
 		} else {
-			fileInput.click();
+			console.log(src)
+			sampler.add("C4", blob.createObjectURL(src), sampleLoaded);
+			src = src.name;	
 		}
 	});
 </script>

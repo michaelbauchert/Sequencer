@@ -1,13 +1,13 @@
 <script>
     import * as Tone from "tone";
-    import Knob from "dumptruck";
+    import Knob from "./Knob.svelte";
     import Dialog from "./Dialog.svelte";
     import AppInfo from "./AppInfo.svelte";
     import { createEventDispatcher, onMount } from 'svelte';
 	const dispatch = createEventDispatcher();
 
     let bpm = 120;
-    let dialogBPM; //, appBarBPM;
+    let dialogBPM, fileInput; //, appBarBPM;
     let stopped = true;  
     let appInfoOpen = false;
     let bpmOpen = false; 
@@ -34,6 +34,13 @@
         //appBarBPM.$on("input", (e) => bpm = e.detail.value);
     })
 
+    function newAudioSample(e) {
+        const files = e.target.files;
+		if (files.length != 0) {
+            dispatch('create', {file: files[0]});
+		}	        
+    }
+
     
 </script>
 
@@ -42,12 +49,12 @@
 </Dialog>
 
 <Dialog bind:open={bpmOpen}>
-    <dt-knob shortname="" 
+    <Knob shortname="" 
              min="20" 
              max="999" 
              value={bpm}
              unit="BPM"
-             bind:this={dialogBPM}></dt-knob>
+             bind:this={dialogBPM}></Knob>
 </Dialog>
 
 
@@ -97,15 +104,15 @@
         <span>Beats Per Minute</span>
     </button>
 
-    <!--<dt-knob class="bpm-knob"            
+    <!--<:global(.knob) class="bpm-knob"            
              shortname="" 
              min="20" 
              max="999" 
              value={bpm}
              unit="BPM"
-             bind:this={appBarBPM}></dt-knob>    -->  
+             bind:this={appBarBPM}></:global(.knob)>    -->  
 
-    <button on:click={() => dispatch('create')}>
+    <button on:click={() => fileInput.click()}>
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
 			<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
         </svg>
@@ -113,7 +120,16 @@
     </button>
 </div>
 
+<input type="file"  
+	   accept="audio/*" 
+	   bind:this={fileInput} 
+	   on:change={newAudioSample} />
+
 <style>
+    input {
+        display: none;
+    }
+
     div {
 		display: grid;
 		grid-template-columns: repeat(5, minmax(0, 1fr));              
@@ -196,18 +212,6 @@
 
     input:focus {
         background: var(--main);
-    }
-
-    dt-knob {
-        height: 25%;
-        --value-font-size: 30px;
-        --font-color: var(--main);
-    }
-
-    dt-knob.bpm-knob {
-        display: none;
-        width: 100%;
-        height: 100%;
     }
 
     @media only screen and (min-width: 992px) {
