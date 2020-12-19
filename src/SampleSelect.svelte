@@ -39,6 +39,7 @@ import { create_ssr_component } from 'svelte/internal';
 			console.log(src)
 			sampler.add("C4", blob.createObjectURL(src), sampleLoaded);
 			src = src.name;	
+			fileInput.scrollIntoView({behavior: "smooth", inline: "end"})
 		}
 	});
 </script>
@@ -79,6 +80,7 @@ import { create_ssr_component } from 'svelte/internal';
 		opacity: 0;
 		height: 0;
 		width: 0;
+		right: 0;
 	}
 	
 	button {

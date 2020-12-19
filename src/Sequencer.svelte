@@ -61,7 +61,7 @@
 </script>
 
 <section style="filter: hue-rotate({hue}deg)" 
-		on:dragenter|preventDefault|stopPropagation={() => drag = true}>
+		 on:dragenter|preventDefault|stopPropagation={() => drag = true}>
 	<header>
 		<h1>{name}</h1>
 
