@@ -1,4 +1,6 @@
 <div>
+    <h1>Sequencer</h1>
+    <p>Sequencer is a audio sequencer web app by <a href="https://www.michaelbauchert.com/">Michael Bauchert</a>.</p>
     <table>   
         <tr>
             <th>Swapping Audio Samples</th>
@@ -42,7 +44,7 @@
         border-spacing: 10px 25px;
     }
 
-    th, strong {
+    th, strong, a, h1 {
         color: var(--main)
     }
 
@@ -54,5 +56,11 @@
 
     td {
         max-width: 65ch;
+    }
+
+    @media only screen and (max-width: 600px) {
+        div {
+            align-self: end;
+        }
     }
 </style>

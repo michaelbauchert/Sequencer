@@ -101,7 +101,7 @@
     <button class="bpm-button"
             on:click={() => bpmOpen = true}>
         <strong>{bpm}</strong>
-        <span>Beats Per Minute</span>
+        <span>BPM</span>
     </button>
 
     <!--<:global(.knob) class="bpm-knob"            

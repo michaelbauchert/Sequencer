@@ -51,7 +51,7 @@
 
 	function sequencerCallback(time, step) {
 		if(step) {
-			sampler.triggerRelease("C4", time);
+			sampler.triggerRelease("C4", time - 0.01);
 			sampler.triggerAttack("C4", time);
 		}		
 	}
