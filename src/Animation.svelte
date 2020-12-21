@@ -25,8 +25,7 @@
             window.requestAnimationFrame(sequencerAnimation); 
         } else {
             window.requestAnimationFrame(() => ctx.clearRect(0, 0, canvas.width, canvas.height));   
-        }
-                 
+        }                 
     }
 
     function startAnimation() {

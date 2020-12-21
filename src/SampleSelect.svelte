@@ -1,7 +1,6 @@
 <script>
 	import { fade, fly } from 'svelte/transition';
 	import { onMount, createEventDispatcher } from 'svelte';
-import { create_ssr_component } from 'svelte/internal';
 	const dispatch = createEventDispatcher();
 
 	export let src = false;
@@ -15,7 +14,7 @@ import { create_ssr_component } from 'svelte/internal';
 	
 	function updateAudioSample(e) {
 		const files = e.target.files;
-		if (files) {
+		if (files.length) {
 			unloaded = true;
 			src = files[0].name;	
 			sampler.add("C4", blob.createObjectURL(files[0]), sampleLoaded);

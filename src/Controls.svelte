@@ -36,9 +36,10 @@
 
     function newAudioSample(e) {
         const files = e.target.files;
-		if (files.length != 0) {
-            dispatch('create', {file: files[0]});
-		}	        
+		let i;
+        for(i = 0; i < files.length; i++) {
+            dispatch('create', {file: files[i]});
+        } 	        
     }    
 </script>
 
@@ -114,12 +115,13 @@
         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
 			<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
         </svg>
-        <span>Add Sequence</span>
+        <span>Add Sequences</span>
     </button>
 </div>
 
 <input type="file"  
-	   accept="audio/*" 
+       accept="audio/*" 
+       multiple
 	   bind:this={fileInput} 
 	   on:change={newAudioSample} />
 

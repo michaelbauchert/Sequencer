@@ -1,0 +1,21 @@
+Multiple Sample File Section/Global Drag and Drop
+Scroll vertically to view more pannels scroll horizontally to view more steps
+Scroll Indicators
+Swing Controls
+Volume and Panning Knob per Module
+Mute/Solo per Module
+App Name/Domain Name
+Accessibility
+PWA/Offline Support
+Remember Session Data
+Add/Subtract Steps 8 at a Time Buttons
+Visualization of Sample
+Sample Start/Stop/Loop Points
+Presets
+Desktop File Manager with Audio Preview
+Step Velocity Sensitivity
+
+Submit Project to One or More of These:
+Tone.js Demos: https://docs.google.com/forms/d/e/1FAIpQLSefV8EI5Kfq_YA0Ynkpj574e6bcV8-_2GAMdk-bnO7ioywtHw/viewform
+Chrome Experiments: https://experiments.withgoogle.com/
+Web Audio Weekly: https://www.webaudioweekly.com/
