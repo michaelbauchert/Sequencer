@@ -39,7 +39,7 @@
 						bind:sequence={sequencer.sequence}
 						loopDirection={loopDirection} 
 						on:remove={() => removeSequence(i)}/>
-			</section>
+			</section>			
 		{/each}
 	</div>	
 
@@ -71,7 +71,7 @@
 		padding: 8px;
 		height: 100%;
 		display: grid;
-		grid-template-rows: auto auto minmax(0, 1fr) auto;
+		grid-template-rows: minmax(0, 17%) minmax(0, 1fr) minmax(0, 18%);
 		scroll-snap-align: start;
 		color: var(--main);
 		transition: filter 250ms 150ms;

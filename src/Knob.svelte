@@ -1,6 +1,8 @@
 <script>
-	export let shortname = 'Parameter';
-	export let longname = '';	
+	export let name = 'Parameter';
+	$: panningKnob = (name.toLowerCase() === "panning" || name.toLowerCase() === "pan");
+
+	export let textposition = ""
 
 	export let min = 0;
 	$: if((typeof min) == "string") {
@@ -21,6 +23,15 @@
 	}
 
 	export let unit = "%";
+	$: if (panningKnob) {
+		if(value === mid) {
+			unit = "C";
+		} else if(value < mid) {
+			unit = "L";
+		} else if(value > mid) {
+			unit = "R";
+		}
+	}	
 
 	export let mid = getMid(); 
 	$: if((typeof mid) == "string") {
@@ -32,15 +43,6 @@
 	}
 	$:exponent = Math.log10((mid - min) / (max - min))/Math.log10(0.5);	
 
-	export let defaultvalue;
-	$: if((typeof defaultvalue) == "string") {
-		defaultvalue = parseFloat(defaultvalue);
-		value = defaultvalue;
-	}
-	$: if(defaultvalue > max || defaultvalue < min) {
-		defaultvalue = setInRangeAndRoundToStep(defaultvalue);
-	}
-
 	export let value = mid;
 	$: if((typeof value) == "string") {
 		value = parseFloat(defaultvalue);
@@ -50,6 +52,26 @@
 		value = setInRangeAndRoundToStep(value);
 	}
 	$:normalvalue = valueToNormal(value);
+	$:displayValue = getDisplayValue(panningKnob, value);
+
+	export let defaultvalue = value;
+	$: if((typeof defaultvalue) == "string") {
+		defaultvalue = parseFloat(defaultvalue);
+		value = defaultvalue;
+	}
+	$: if(defaultvalue > max || defaultvalue < min) {
+		defaultvalue = setInRangeAndRoundToStep(defaultvalue);
+	}
+	
+	function getDisplayValue(panningKnob, value) {
+		if (!panningKnob) {
+			return value.toFixed(decimalPlaces);
+		} else if(panningKnob && value !== 0) {
+			return Math.abs(value).toFixed(decimalPlaces);
+		} else if (panningKnob && value === 0) {
+			return "";
+		}//endif			
+	}//end getDisplayValue
 
 	let decimalPlaces;
 	$: if(Math.floor(step) === step) {
@@ -100,9 +122,9 @@
 	function handleDrag(e) {
 		const dragAmount = e.movementY;
 		if(e.shiftKey) {
-			knobDelta -= dragAmount/(height * 2);
-		} else {
 			knobDelta -= dragAmount/height;
+		} else {
+			knobDelta -= dragAmount/(height / 3);
 		}//end check shift key
 
 		const newNormal = normalvalue + knobDelta;
@@ -140,8 +162,7 @@
 	$:dispatchInputEvent(normalvalue);
 	function dispatchInputEvent(normalvalue) {
 		dispatch('input', {
-				shortname: shortname,
-				longname: longname,
+				name: name,
 				value: value,
 				normalvalue: normalvalue,
 				min: min,
@@ -183,8 +204,8 @@
 </script>
 
 
-<div class="knob">
-	<div class="knob-label">{shortname}</div>
+<div class="knob text-{textposition}">
+	<div class="knob-label">{name}</div>
 
 	<div class="knob-wrapper"
 				style="--knob-rotation:{normalvalue * 300 - 150}deg;
@@ -196,7 +217,7 @@
 				draggable="false"
 
 				role="slider"
-				aria-label={longname ?? shortname}
+				aria-label={name}
 				aria-valuemin={min}
 				aria-valuemax={max}
 				aria-valuenow={value}
@@ -221,7 +242,7 @@
 	<div class="knob-number-input">
 		<span on:click={handleClick}
 				role="presentation"
-				class:unfocused>{value.toFixed(decimalPlaces) + " " + unit}</span>
+				class:unfocused>{displayValue + " " + unit}</span>
 
 		<input type="number"
 						bind:this={numInput}
@@ -251,20 +272,20 @@
 		--indicator-border-radius: 0;
 		--indicator-margin-top: -1px;
 
-		--label-font-size: 0px;
+		--label-font-size: 30px;
 		--value-font-size: 30px;
 		--font-color: var(--main);
 		
-		width: 40vmin;
-		height: 40vmin;
+		width: 100%;
+		height: 100%;
 		display: inline-grid;
 		grid-gap: var(--grid-gap);
-		grid-template-rows: min-content minmax(0, 1fr) var(--value-font-size);
+		grid-template-rows: min-content minmax(0, 1fr) min-content;
 		grid-template-areas: 
 		'label'
 		'knob'
 		'number';
-	}
+	}	
 
 	.knob-number-input,
 	.knob-wrapper,
@@ -325,6 +346,13 @@
 		'number';
 	}
 
+	.knob.text-right,
+	.knob-text-left {
+		grid-template-columns: 50% 50%;
+	}
+
+	
+
 	.knob-number-input {
 		grid-area: number;
 	}
@@ -344,6 +372,10 @@
 		user-select: none;
 	}
 
+	.text-left .knob-wrapper {
+		justify-content: end;
+	}
+
 	.knob-wrapper:focus {
 		outline: none;
 		--knob-background: var(--knob-background-focus);
@@ -351,6 +383,7 @@
 
 	.knob-label {
 		font-size: var(--label-font-size);
+		font-weight: 700;
 		grid-area: label;
 		-webkit-user-select: none;  /* Safari all */
   		user-select: none;
@@ -362,8 +395,7 @@
 		transform: rotate(var(--knob-rotation));
 	}
 	svg {
-		height: 100%;
-		
+		height: 100%;		
 		display: block;
 	}
 

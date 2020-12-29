@@ -1,15 +1,12 @@
 Multiple Sample File Section/Global Drag and Drop
 Scroll vertically to view more pannels scroll horizontally to view more steps
 Scroll Indicators
-Swing Controls
 Volume and Panning Knob per Module
 Mute/Solo per Module
 App Name/Domain Name
 Accessibility
 PWA/Offline Support
 Remember Session Data
-Add/Subtract Steps 8 at a Time Buttons
-Visualization of Sample
 Sample Start/Stop/Loop Points
 Presets
 Desktop File Manager with Audio Preview

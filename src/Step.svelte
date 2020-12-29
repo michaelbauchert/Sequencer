@@ -73,4 +73,8 @@
 		background: var(--main);
 		border: 7px solid var(--dark);
 	}
+
+	input:active + div {
+		border-color: transparent;
+	}
 </style>

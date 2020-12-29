@@ -5,7 +5,7 @@
 
 	export let src = false;
 	export let drag = false;
-	export let sampler;
+	export let sampler, buffer;
 	let unloaded = true;
 
 	const blob = window.URL || window.webkitURL;
@@ -21,8 +21,9 @@
 		}								
 	}
 	
-	function sampleLoaded() {		
+	function sampleLoaded(loadedBuffer) {		
 		unloaded = false;
+		buffer = loadedBuffer;
 	}
 
 	function handleDrop(e) {
@@ -80,9 +81,11 @@
 		height: 0;
 		width: 0;
 		right: 0;
+		z-index: -1;
 	}
 	
 	button {
+		grid-area: select;
 		width: max-content;
 		height: min-content;
 		border: 1px solid var(--main);
