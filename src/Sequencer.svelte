@@ -1,24 +1,19 @@
 <script>
-	import { Sampler, Sequence, Transport, Channel, Destination, Volume } from "tone";
-	import { fade } from 'svelte/transition';
-	import { createEventDispatcher } from 'svelte';
+	import { Sampler, Sequence, Transport, Destination, Channel } from "tone";
+	import { createEventDispatcher, onDestroy } from 'svelte';
 	const dispatch = createEventDispatcher();
 	
 	import Waveform from "./Waveform.svelte";
-	import Knob from "./Knob.svelte";
-	import MuteSolo from "./MuteSolo.svelte";
+	import ChannelControls from "./ChannelControls.svelte";
 	import Step from './Step.svelte';
 	import SampleSelect from "./SampleSelect.svelte";
 	import Animation from "./Animation.svelte";
 		
 	export let name = "Sequencer";
+	export let id;
 	export let src = false;
 	export let loopDirection = 0; //0 = forward, 1 = backward, 3 = pingpong
 	export let drag = false;
-	export let mute = false;
-	export let solo = false;
-	export let volume = 0;
-	export let panning = 0;
 	
 	export let sequence = [false, false, false, false, false, false, false, false,
 					false, false, false, false,false, false];	
@@ -50,16 +45,17 @@
 	function sequencePush() {
 		const newStep = (sequenceDeleted.length === 0) ? false : sequenceDeleted.pop();
 		sequence = [...sequence, newStep];
-	}
+	}	
 
-	const channel = new Channel(volume, panning);
-	$:channel.mute = mute;
-	$:channel.solo = solo;
-	$:channel.volume.rampTo(volume);
-	$:channel.pan.rampTo(panning);
-
+	const channel = new Channel(0, 0);
 	const sampler = new Sampler().chain(channel, Destination);
 	const sequencer = new Sequence(sequencerCallback, sequence).start(0);
+
+	onDestroy(() => {
+		sequence.dispose();
+		sampler.dispose();
+		channel.dispose();		
+	});
 
 	function sequencerCallback(time, step) {
 		if(step) {
@@ -74,15 +70,13 @@
 
 <header>
 	<!---->
-
+	<h1>{@html name}</h1>
 	
-		<SampleSelect bind:src={src} 
-				  bind:drag={drag}
-				  bind:buffer={buffer}
-				  sampler={sampler}
-				  on:fail={() => dispatch('remove')}/>
-
-				  <MuteSolo bind:mute={mute} />
+	<SampleSelect bind:src={src} 
+				bind:drag={drag}
+				bind:buffer={buffer}
+				sampler={sampler}
+				on:fail={() => dispatch('remove')}/>				
 
 	<!--Remove Sequencer Button-->
 	<button class="delete"
@@ -109,6 +103,12 @@
 </div>
 
 <footer class="bottom-controls">
+	<button class="plus" on:click={sequencePush} title={`Add ${name} Step`}>
+		<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+			<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+		</svg>
+	</button>
+
 	{#if minusEnabled}
 		<button class="minus" on:click={sequencePop} title={`Remove ${name} Step`}>
 			<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
@@ -116,14 +116,8 @@
 			</svg>
 		</button>
 	{/if}
-	<button class="plus" on:click={sequencePush} title={`Add ${name} Step`}>
-		<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-			<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-		</svg>
-	</button>
 	
-	<Knob name="Volume" min="-72" max="12" defaultvalue="0" unit="dB" textposition="left"/>
-	<Knob name="Panning" min="-100" max="100" defaultvalue="0" textposition="left"/>
+	<ChannelControls id={id} channel={channel} />
 </footer>
 
 <style>	
@@ -132,15 +126,20 @@
 		grid-gap: 5px;
 		margin-bottom: 5px;
 		position: relative;
-		grid-template-columns: min-content repeat(2, calc(100% / 8 - 5px)) 1fr calc(100% / 8 - 5px);
+		grid-template-columns: min-content min-content 1fr calc(100% / 8 - 5px);
 		grid-template-rows: auto minmax(0, 1fr);
 		grid-template-areas: 
-		'select mute solo none delete'
-		'sample sample sample sample sample';		
+		'name select none delete'
+		'sample sample sample sample';		
 	}
 
 	header :global(button) {
 		margin: 0;
+	}
+
+	h1 {
+		font-size: 18px;
+		grid-area: name;
 	}
 
 	header div {
@@ -178,12 +177,12 @@
 
 	.bottom-controls {
 		display: grid;
-		grid-gap: 10px;
+		grid-gap: 5px;
 		grid-template-rows: repeat(2, minmax(0, 1fr));
-		grid-template-columns: repeat(2, 1fr) 40%;
+		grid-template-columns: repeat(4, 1fr) 10%;
 		grid-template-areas: 
-		'plus minus volume'
-		'plus minus panning';
+		'plus minus volume panning mute'
+		'plus minus volume panning solo';
 	}
 
 	.plus {
@@ -192,20 +191,6 @@
 
 	.minus {
 		grid-area: minus;
-	}
-
-	.bottom-controls :global(.knob) {
-		--grid-gap: 0 !important;
-		--label-font-size: 15px !important;
-		--value-font-size: 15px !important;
-	}
-
-	.bottom-controls :global(.knob:nth-of-type(1)) {
-		grid-area: volume;
-	}
-
-	.bottom-controls :global(.knob:nth-of-type(2)) {
-		grid-area: panning;
 	}
 
 	.delete{

@@ -5,22 +5,24 @@
 	export let textposition = ""
 
 	export let min = 0;
-	$: if((typeof min) == "string") {
+	$: if(typeof min === "string") {
 		min = parseFloat(min);
 		mid = getMid();
 	}
 
 	export let max = 100;
-	$: if((typeof max) == "string") {
+	$: if(typeof max === "string") {
 		max = parseFloat(max);
 		mid = getMid();
 	}
 
 	export let step = 1;
-	$: if((typeof step) == "string") {
+	$: if(typeof step === "string") {
 		step = parseFloat(step);
 		mid = getMid();
 	}
+
+	
 
 	export let unit = "%";
 	$: if (panningKnob) {
@@ -66,9 +68,9 @@
 	function getDisplayValue(panningKnob, value) {
 		if (!panningKnob) {
 			return value.toFixed(decimalPlaces);
-		} else if(panningKnob && value !== 0) {
+		} else if (value !== 0) {
 			return Math.abs(value).toFixed(decimalPlaces);
-		} else if (panningKnob && value === 0) {
+		} else if (value === 0) {
 			return "";
 		}//endif			
 	}//end getDisplayValue
@@ -114,7 +116,7 @@
 	function endKnobTurn(e) {
 		knobDelta = 0;
 		knob.onpointermove = null;
-  	knob.releasePointerCapture(e.pointerId);
+  		knob.releasePointerCapture(e.pointerId);
 	}//end knob turn
 
 	const height = screen.height;
@@ -245,13 +247,13 @@
 				class:unfocused>{displayValue + " " + unit}</span>
 
 		<input type="number"
-						bind:this={numInput}
-						min={min}
-						max={max}
-						tabindex="-1"
-						on:keyup={submitInput}
-						class:unfocused
-						on:blur={handleBlur}>
+				bind:this={numInput}
+				min={min}
+				max={max}
+				tabindex="-1"
+				on:keyup={submitInput}
+				class:unfocused
+				on:blur={handleBlur}>
 	</div>
 </div>
 

@@ -20,7 +20,7 @@
     } 
 
     $: if (!isNaN(swing)) {
-        Tone.Transport.swing =  swing;
+        Tone.Transport.swing = swing;
     } 
 
     $: if (stopped) {
@@ -54,11 +54,11 @@
 </Dialog>
 
 <Dialog bind:open={bpmOpen}>
-    <Knob name="BPM" 
+    <Knob name="Tempo" 
           min="20" 
           max="999" 
           value={bpm}
-          unit=""
+          unit="bpm"
           bind:this={dialogBPM}></Knob>
 
     <Knob name="Swing" 
@@ -111,7 +111,7 @@
     <button class="bpm-button"
             on:click={() => bpmOpen = true}>
         <strong>{bpm}</strong>
-        <span>BPM</span>
+        <span>Tempo & Swing</span>
     </button>
 
     <!--<:global(.knob) class="bpm-knob"            
@@ -244,14 +244,6 @@
         svg {
             height: auto;
         }
-
-        /*.bpm-knob {
-            display: initial;
-        }
-
-        .bpm-button {
-            display: none;
-        }*/
 	}
 
     

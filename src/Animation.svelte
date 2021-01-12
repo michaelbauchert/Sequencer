@@ -1,5 +1,5 @@
 <script>
-    import {onMount} from "svelte";
+    import { onMount } from "svelte";
     import { Transport } from "tone";
 
     export let sequencer, currentLength, sequenceLength, loopDirection;

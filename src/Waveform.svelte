@@ -14,13 +14,11 @@
             newPath = `${newPath} ${i},${(array[sampleIndex] * 50) + 50}`;
         }
 
-        console.log(array)
-
         path = newPath;
     }
 </script>
 
-<button>
+<button disabled>
     <svg width={width} 
          height={height}
          viewBox="0 0 {width} {height}"

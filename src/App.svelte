@@ -32,9 +32,10 @@
 		{#each sequencers as sequencer, i (sequencer.id)}
 			<section style="filter: hue-rotate({i / sequencers.length * 360}deg)" 	
 					 on:dragenter|preventDefault|stopPropagation={() => sequencers.drag = true}					 
-					 animate:flip="{{delay: 200, duration: 200, easing: cubicOut}}"
-					 transition:fade="{{duration: 150}}">
-				<Sequencer name={sequencer.id} 
+					 animate:flip="{{delay: 200, duration: 300, easing: cubicOut}}"
+					 transition:fade="{{duration: 200}}">
+				<Sequencer name={`${(i + 1)}/${sequencers.length}`} 
+						id = {sequencer.id}
 						bind:src={sequencer.src} 
 						bind:sequence={sequencer.sequence}
 						loopDirection={loopDirection} 
@@ -71,7 +72,7 @@
 		padding: 8px;
 		height: 100%;
 		display: grid;
-		grid-template-rows: minmax(0, 17%) minmax(0, 1fr) minmax(0, 18%);
+		grid-template-rows: 80px minmax(0, 1fr) 80px;
 		scroll-snap-align: start;
 		color: var(--main);
 		transition: filter 250ms 150ms;
