@@ -1,27 +1,27 @@
 <script>
-	import { Sampler, Sequence, Transport } from "tone";
-	import { fade } from 'svelte/transition';
-	import { createEventDispatcher } from 'svelte';
+	import { Sampler, Sequence, Transport, Destination, Channel } from "tone";
+	import { createEventDispatcher, onDestroy } from 'svelte';
 	const dispatch = createEventDispatcher();
 	
-	import Knob from "./Knob.svelte";
+	import Waveform from "./Waveform.svelte";
+	import ChannelControls from "./ChannelControls.svelte";
 	import Step from './Step.svelte';
 	import SampleSelect from "./SampleSelect.svelte";
 	import Animation from "./Animation.svelte";
 		
 	export let name = "Sequencer";
+	export let id;
 	export let src = false;
 	export let loopDirection = 0; //0 = forward, 1 = backward, 3 = pingpong
-	export let hue = 0;
 	export let drag = false;
 	
 	export let sequence = [false, false, false, false, false, false, false, false,
-					false, false, false, false,false, false, false, false];	
+					false, false, false, false,false, false];	
 	$: reverseSequence = sequence.slice().reverse();
 	$: pingPongSequence = [...sequence, 
 						   ...sequence.slice(1, sequence.length - 1).reverse()];
 	
-	let currentSequence;
+	let currentSequence, buffer;
 	$: {		
 		if(loopDirection ===  0){ //Loop Forward
 			currentSequence = sequence;
@@ -45,10 +45,17 @@
 	function sequencePush() {
 		const newStep = (sequenceDeleted.length === 0) ? false : sequenceDeleted.pop();
 		sequence = [...sequence, newStep];
-	}
+	}	
 
-	const sampler = new Sampler().toDestination();
+	const channel = new Channel(0, 0);
+	const sampler = new Sampler().chain(channel, Destination);
 	const sequencer = new Sequence(sequencerCallback, sequence).start(0);
+
+	onDestroy(() => {
+		sequence.dispose();
+		sampler.dispose();
+		channel.dispose();		
+	});
 
 	function sequencerCallback(time, step) {
 		if(step) {
@@ -62,21 +69,26 @@
 </script>
 
 <header>
-	<h1>{name}</h1>
+	<!---->
+	<h1>{@html name}</h1>
+	
+	<SampleSelect bind:src={src} 
+				bind:drag={drag}
+				bind:buffer={buffer}
+				sampler={sampler}
+				on:fail={() => dispatch('remove')}/>				
 
 	<!--Remove Sequencer Button-->
-	<button on:click={() => dispatch('remove')}>
+	<button class="delete"
+			on:click={() => dispatch('remove')}>
 		<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
 			<path xmlns="http://www.w3.org/2000/svg" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
 		</svg>
-	</button>				
+		</button>
+
+	<Waveform buffer={buffer}
+			  audioContext={sampler.context} />
 </header>
-
-<SampleSelect bind:src={src} 
-				bind:drag={drag}
-				sampler={sampler}
-				on:fail={() => dispatch('remove')}/>		
-
 
 <div class="container">
 	<div class="sequencer">
@@ -90,8 +102,13 @@
 	</div>
 </div>
 
+<footer class="bottom-controls">
+	<button class="plus" on:click={sequencePush} title={`Add ${name} Step`}>
+		<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
+			<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+		</svg>
+	</button>
 
-<div class="plus-minus">
 	{#if minusEnabled}
 		<button class="minus" on:click={sequencePop} title={`Remove ${name} Step`}>
 			<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
@@ -99,20 +116,36 @@
 			</svg>
 		</button>
 	{/if}
-	<button class="plus" on:click={sequencePush} title={`Add ${name} Step`}>
-		<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-			<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-		</svg>
-	</button>
-
-	<!--<Knob name="Gain" min="-72" max="12" defaultvalue="0" unit="dB" />
-	<Knob name="Pan" min="-100" max="100" defaultvalue="0" />-->
-</div>	
+	
+	<ChannelControls id={id} channel={channel} />
+</footer>
 
 <style>	
 	header {
+		display: grid;
+		grid-gap: 5px;
+		margin-bottom: 5px;
+		position: relative;
+		grid-template-columns: min-content min-content 1fr calc(100% / 8 - 5px);
+		grid-template-rows: auto minmax(0, 1fr);
+		grid-template-areas: 
+		'name select none delete'
+		'sample sample sample sample';		
+	}
+
+	header :global(button) {
+		margin: 0;
+	}
+
+	h1 {
+		font-size: 18px;
+		grid-area: name;
+	}
+
+	header div {
+		height: min-content;
 		display: flex;
-		justify-content: space-between;
+		grid-area: group;
 	}
 	
 	h1 {
@@ -123,7 +156,7 @@
 		fill: var(--main);
 	}
 	
-	.plus-minus svg {
+	.bottom-controls svg {
 		height: 100%;
 		width: 100%;
 	}
@@ -141,36 +174,50 @@
 		display: grid;
 		grid-template-columns: repeat(8, 1fr);
 	}
-	
-	.plus-minus {
-		display: flex;
-		justify-content: space-around;
+
+	.bottom-controls {
+		display: grid;
+		grid-gap: 5px;
+		grid-template-rows: repeat(2, minmax(0, 1fr));
+		grid-template-columns: repeat(4, 1fr) 10%;
+		grid-template-areas: 
+		'plus minus volume panning mute'
+		'plus minus volume panning solo';
 	}
 
-	header div button {
-		border: 1px solid transparent;
-		border-radius: 0;
-	}
-	
-	.plus-minus button {
-		border-radius: 0;
-		margin: 5px;
-		margin-left: 0;
-		width: 50px;
-		height: 50px;
+	.plus {
+		grid-area: plus;
 	}
 
-	.plus-minus button:focus,
+	.minus {
+		grid-area: minus;
+	}
+
+	.delete{
+		grid-area: delete;
+		box-sizing: border-box;
+        border: 1px solid transparent;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+	}
+	
+	.bottom-controls button {
+		border-radius: 0;
+		margin: 0;
+	}
+
+	.bottom-controls button:focus,
 	header div button:focus {
 		border: 1px solid var(--main);
 	}
 
-	.plus-minus button:active, 
+	.bottom-controls button:active, 
 	header div button:active {
 		background: var(--main);
 	}
 
-	.plus-minus button:active svg, 
+	.bottom-controls button:active svg, 
 	header div button:active svg {
 		fill: var(--dark);
 	}

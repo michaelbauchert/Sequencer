@@ -7,7 +7,8 @@
 	const dispatch = createEventDispatcher();
 
     let bpm = 120;
-    let dialogBPM, fileInput; //, appBarBPM;
+    let swing = 0;
+    let dialogBPM, dialogSwing, fileInput; //, appBarBPM;
     let stopped = true;  
     let appInfoOpen = false;
     let bpmOpen = false; 
@@ -16,6 +17,10 @@
 
     $: if (!isNaN(bpm)) {
         Tone.Transport.bpm.value =  bpm * 2;
+    } 
+
+    $: if (!isNaN(swing)) {
+        Tone.Transport.swing = swing;
     } 
 
     $: if (stopped) {
@@ -31,6 +36,7 @@
 
     onMount(() =>{
         dialogBPM.$on("input", (e) => bpm = e.detail.value);
+        dialogSwing.$on("input", (e) => swing = e.detail.normalvalue);
         //appBarBPM.$on("input", (e) => bpm = e.detail.value);
     })
 
@@ -48,12 +54,17 @@
 </Dialog>
 
 <Dialog bind:open={bpmOpen}>
-    <Knob shortname="" 
-             min="20" 
-             max="999" 
-             value={bpm}
-             unit="BPM"
-             bind:this={dialogBPM}></Knob>
+    <Knob name="Tempo" 
+          min="20" 
+          max="999" 
+          value={bpm}
+          unit="bpm"
+          bind:this={dialogBPM}></Knob>
+
+    <Knob name="Swing" 
+          defaultvalue={0}
+          value={0}
+          bind:this={dialogSwing}></Knob>
 </Dialog>
 
 
@@ -100,7 +111,7 @@
     <button class="bpm-button"
             on:click={() => bpmOpen = true}>
         <strong>{bpm}</strong>
-        <span>BPM</span>
+        <span>Tempo & Swing</span>
     </button>
 
     <!--<:global(.knob) class="bpm-knob"            
@@ -126,6 +137,11 @@
 	   on:change={newAudioSample} />
 
 <style>
+    :global(dialog .knob) {
+        width: 20vmax !important;
+        height: 20vmax !important;
+    } 
+
     input {
         display: none;
     }
@@ -228,14 +244,6 @@
         svg {
             height: auto;
         }
-
-        /*.bpm-knob {
-            display: initial;
-        }
-
-        .bpm-button {
-            display: none;
-        }*/
 	}
 
     

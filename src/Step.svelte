@@ -2,30 +2,29 @@
     import { scale } from 'svelte/transition';
 
 	export let checked = false;
-	export let disabled = false;
 </script>
 
-<label transition:scale="{{duration: 150}}">
-    <input type="checkbox" bind:checked={checked}/>
+<button	on:click={() => checked = !checked} 
+		aria-pressed={checked}
+		transition:scale>
 	<div></div>
-</label>
+</button>
 
 <style>
-   label input {
-		position: absolute;
-		opacity: 0;
-		height: 0;
-		width: 0;
-	}
 	
-	label {
+	button {
 		width: 100%;
 		height: 0;
+		padding: 0;
 		padding-top: 100%;
-		position: relative;
+		position: relative;		
+        margin: 0;
+        border-radius: 0;
+        background: transparent;
+		border: none;
 	}
 	
-	label > div {
+	button > div {
 		position: absolute;        
 		width: 100%;
 		height: 100%;
@@ -55,22 +54,27 @@
 		background: transparent;
 	}	
 
-	input:checked + div::after {
+	button[aria-pressed=true] div::after {
 		height: 100%;
 		width: 100%;
         border-color: var(--main);
 	}
 	
-	label:hover div::after, input:focus + div::after{
+	button:hover div::after, 
+	button:focus div::after{
 		height: 50%;
 		width: 50%;
 		border: 1px solid var(--main);
 	}
 	
-	label:focus-within input:checked + div::after {
+	button:focus[aria-pressed=true] div::after {
 		height: 100%;
 		width: 100%;
 		background: var(--main);
 		border: 7px solid var(--dark);
+	}
+
+	button:active div {
+		border-color: transparent;
 	}
 </style>
